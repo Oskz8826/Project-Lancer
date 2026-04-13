@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lancer — UI Reference for Claude Code</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: #0a0a0f; color: #e0e0e0; font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; }
+
+  /* ── Layout ── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+  .section { margin-bottom: 64px; }
+  .section-header { border-left: 3px solid #F25623; padding-left: 14px; margin-bottom: 24px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: #888; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  /* ── Cover ── */
+  .cover { text-align: center; padding: 60px 0 48px; border-bottom: 1px solid #1e1e2a; margin-bottom: 48px; }
+  .cover-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; background: rgba(242,86,35,0.15); border: 1px solid rgba(242,86,35,0.3); color: #f78560; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 20px; }
+  .cover h1 { font-size: 42px; font-weight: 700; color: #fff; letter-spacing: -0.03em; margin-bottom: 10px; }
+  .cover h1 span { color: #F25623; }
+  .cover-sub { font-size: 15px; color: #666; margin-bottom: 32px; }
+  .cover-meta { display: flex; align-items: center; justify-content: center; gap: 24px; }
+  .cover-meta span { font-size: 12px; color: #555; }
+  .cover-meta strong { color: #888; }
+
+  /* ── Info boxes ── */
+  .info-box { background: #0f0f18; border: 1px solid #1e1e2a; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; }
+  .info-box h4 { font-size: 12px; font-weight: 600; color: #F25623; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .info-box p, .info-box li { font-size: 13px; color: #888; line-height: 1.7; }
+  .info-box ul { padding-left: 16px; }
+  .info-box code { background: #1a1a26; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; color: #a0a0c0; }
+
+  /* ── Color swatches ── */
+  .swatch-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+  .swatch { border-radius: 8px; overflow: hidden; width: 140px; }
+  .swatch-color { height: 64px; }
+  .swatch-info { background: #0f0f18; border: 1px solid #1e1e2a; border-top: none; padding: 8px 10px; }
+  .swatch-name { font-size: 12px; font-weight: 600; color: #ccc; }
+  .swatch-hex { font-size: 11px; color: #666; font-family: monospace; }
+  .swatch-role { font-size: 11px; color: #555; margin-top: 2px; }
+
+  /* ── Screen cards ── */
+  .screen-card { background: #0f0f18; border: 1px solid #1e1e2a; border-radius: 12px; overflow: hidden; }
+  .screen-label { background: #131320; border-bottom: 1px solid #1e1e2a; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .screen-label-num { font-size: 10px; font-weight: 700; color: #F25623; text-transform: uppercase; letter-spacing: 0.08em; }
+  .screen-label-name { font-size: 12px; color: #aaa; }
+  .screen-label-access { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.06); color: #666; }
+  .screen-content { padding: 16px; }
+  .screen-desc { font-size: 12px; color: #777; line-height: 1.6; margin-bottom: 12px; }
+  .screen-features { display: flex; flex-wrap: wrap; gap: 6px; }
+  .feat-tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: rgba(255,255,255,0.05); color: #888; border: 1px solid #1e1e2a; }
+  .feat-tag.orange { background: rgba(242,86,35,0.1); color: #f78560; border-color: rgba(242,86,35,0.2); }
+
+  /* ── Wireframe mockups ── */
+  .wf { background: #0d0d16; border-radius: 8px; overflow: hidden; font-family: system-ui, sans-serif; }
+  .wf-bar { background: #141420; border-bottom: 1px solid #1e1e2a; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .wf-logo { font-size: 13px; font-weight: 700; color: #fff; }
+  .wf-nav { display: flex; gap: 10px; }
+  .wf-nav span { font-size: 11px; color: #555; }
+  .wf-nav span.act { color: #F25623; }
+  .wf-btns { display: flex; gap: 6px; }
+  .wf-btn { font-size: 10px; padding: 3px 8px; border-radius: 5px; border: 1px solid #2a2a3a; color: #666; }
+  .wf-btn.p { background: rgba(242,86,35,0.12); border-color: rgba(242,86,35,0.3); color: #f78560; }
+  .wf-body { padding: 14px; }
+  .wf-hero { text-align: center; padding: 20px 10px; border-bottom: 1px solid #1e1e2a; }
+  .wf-hero h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.02em; }
+  .wf-hero h3 span { color: #F25623; }
+  .wf-hero p { font-size: 11px; color: #555; margin-bottom: 12px; }
+  .wf-hero-ctas { display: flex; justify-content: center; gap: 8px; }
+  .wf-cta { padding: 6px 14px; border-radius: 6px; font-size: 11px; }
+  .wf-cta.solid { background: #F25623; color: #fff; }
+  .wf-cta.ghost { border: 1px solid #2a2a3a; color: #777; }
+  .wf-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #1e1e2a; border-top: 1px solid #1e1e2a; border-bottom: 1px solid #1e1e2a; }
+  .wf-2col-item { padding: 10px 12px; background: #0d0d16; }
+  .wf-2col-item h4 { font-size: 11px; font-weight: 600; color: #ccc; margin-bottom: 3px; }
+  .wf-2col-item p { font-size: 10px; color: #555; }
+  .wf-tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #1e1e2a; }
+  .wf-tier { padding: 10px; background: #0d0d16; }
+  .wf-tier.hl { background: rgba(242,86,35,0.05); }
+  .wf-tier-n { font-size: 11px; font-weight: 600; color: #ccc; margin-bottom: 3px; }
+  .wf-tier-p { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .wf-tier-f { font-size: 10px; color: #555; margin-bottom: 2px; }
+  .wf-tier-ai { font-size: 10px; color: rgba(147,197,253,0.7); margin-top: 4px; }
+  .wf-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .wf-metric { background: #131320; border-radius: 6px; padding: 10px; }
+  .wf-metric-l { font-size: 10px; color: #555; margin-bottom: 3px; }
+  .wf-metric-v { font-size: 18px; font-weight: 700; color: #fff; }
+  .wf-act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .wf-act { padding: 9px; border-radius: 6px; border: 1px solid #1e1e2a; font-size: 11px; text-align: center; color: #888; }
+  .wf-act.p { background: rgba(242,86,35,0.1); border-color: rgba(242,86,35,0.25); color: #f78560; }
+  .wf-list-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #131320; }
+  .wf-li-l { font-size: 11px; color: #ccc; }
+  .wf-li-s { font-size: 10px; color: #555; margin-top: 2px; }
+  .wf-li-r { font-size: 11px; color: #888; text-align: right; }
+  .wf-strip { background: #131320; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .wf-strip p { font-size: 10px; color: #555; }
+  .wf-strip span { font-size: 11px; color: #F25623; font-weight: 600; }
+  .wf-step-bar { display: flex; gap: 3px; margin-bottom: 12px; }
+  .wf-step { flex: 1; height: 3px; border-radius: 2px; background: #1e1e2a; }
+  .wf-step.done { background: #fff; }
+  .wf-step.active { background: #888; }
+  .wf-split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+  .wf-output { background: #131320; border-radius: 6px; padding: 10px; }
+  .wf-output-range { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .wf-output-row { display: flex; justify-content: space-between; font-size: 10px; color: #555; padding: 3px 0; border-bottom: 1px solid #1a1a26; }
+  .wf-fl { margin-bottom: 8px; }
+  .wf-fl-l { font-size: 10px; color: #555; margin-bottom: 3px; }
+  .wf-fi { background: #131320; border: 1px solid #1e1e2a; border-radius: 5px; padding: 5px 8px; font-size: 11px; color: #777; width: 100%; }
+  .wf-sel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 4px; }
+  .wf-sel { padding: 5px 8px; border-radius: 5px; border: 1px solid #1e1e2a; font-size: 11px; color: #555; text-align: center; }
+  .wf-sel.on { border-color: #888; color: #fff; background: #1a1a26; }
+  .wf-ai { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 6px; padding: 8px; margin-top: 8px; }
+  .wf-ai-l { font-size: 10px; color: rgba(147,197,253,0.8); font-weight: 600; margin-bottom: 2px; }
+  .wf-ai-m { font-size: 10px; color: rgba(147,197,253,0.5); }
+  .wf-at { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .wf-at th { text-align: left; font-size: 10px; color: #555; font-weight: 400; padding: 0 6px 5px 0; border-bottom: 1px solid #1e1e2a; }
+  .wf-at td { padding: 6px 6px 6px 0; border-bottom: 1px solid #131320; color: #ccc; }
+  .wf-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+  .wf-badge.free { background: rgba(255,255,255,0.06); color: #666; }
+  .wf-badge.basic { background: rgba(34,197,94,0.1); color: rgba(134,239,172,0.8); }
+  .wf-badge.pro { background: rgba(59,130,246,0.1); color: rgba(147,197,253,0.8); }
+  .wf-badge.max { background: rgba(242,86,35,0.1); color: #f78560; }
+  .wf-skills { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+  .wf-skill { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 5px; border: 1px solid #1e1e2a; font-size: 11px; color: #666; }
+  .wf-skill.on { border-color: #444; color: #ccc; background: #131320; }
+  .wf-skill.lk { opacity: 0.35; }
+  .wf-sk-box { width: 11px; height: 11px; border-radius: 2px; border: 1px solid #333; flex-shrink: 0; background: transparent; font-size: 8px; display: flex; align-items: center; justify-content: center; color: transparent; }
+  .wf-skill.on .wf-sk-box { background: #fff; border-color: #fff; color: #000; }
+  .wf-curr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .wf-curr-opt { padding: 6px; border-radius: 5px; border: 1px solid #1e1e2a; text-align: center; font-size: 12px; color: #555; }
+  .wf-curr-opt.on { border-color: #888; color: #fff; background: #131320; font-weight: 600; }
+  .wf-curr-sym { font-size: 16px; font-weight: 700; display: block; color: inherit; }
+  .wf-curr-name { font-size: 9px; color: #555; }
+  .wf-curr-opt.on .wf-curr-name { color: #888; }
+  .wf-cmp-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .wf-cmp-table th { text-align: center; font-size: 10px; color: #555; padding: 6px 4px; border-bottom: 1px solid #1e1e2a; font-weight: 500; }
+  .wf-cmp-table th:first-child { text-align: left; }
+  .wf-cmp-table td { padding: 5px 4px; border-bottom: 1px solid #0f0f18; text-align: center; color: #555; }
+  .wf-cmp-table td:first-child { text-align: left; color: #888; }
+  .wf-cmp-table .cat td { background: rgba(255,255,255,0.03); color: #444; font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .ck { color: rgba(34,197,94,0.7); }
+  .cx { color: #2a2a3a; }
+  .wf-faq { border-top: 1px solid #1e1e2a; }
+  .wf-faq-item { border-bottom: 1px solid #131320; padding: 8px 0; }
+  .wf-faq-q { font-size: 11px; color: #888; font-weight: 500; display: flex; justify-content: space-between; }
+  .wf-faq-a { font-size: 10px; color: #555; margin-top: 4px; line-height: 1.5; }
+  .wf-lock { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; border: 1px dashed #1e1e2a; margin-top: 8px; }
+  .wf-lock p { font-size: 11px; color: #555; flex: 1; }
+
+  /* ── Hifi mockup container ── */
+  .hifi-wrap { background: #0d0d12; border-radius: 14px; overflow: hidden; }
+
+  /* ── Spec tables ── */
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .spec-table th { text-align: left; font-size: 11px; color: #555; font-weight: 500; padding: 8px 12px; border-bottom: 1px solid #1e1e2a; text-transform: uppercase; letter-spacing: 0.06em; }
+  .spec-table td { padding: 10px 12px; border-bottom: 1px solid #131320; color: #888; vertical-align: top; }
+  .spec-table td:first-child { color: #ccc; font-weight: 500; width: 30%; }
+  .spec-table code { background: #131320; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; color: #a0a0c0; }
+
+  /* ── Component specs ── */
+  .comp-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #131320; }
+  .comp-preview { min-width: 120px; }
+  .comp-desc { font-size: 12px; color: #666; }
+  .comp-desc strong { color: #aaa; display: block; margin-bottom: 2px; }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid #1e1e2a; margin: 48px 0; }
+
+  /* ── TOC ── */
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; padding: 20px; background: #0f0f18; border: 1px solid #1e1e2a; border-radius: 10px; margin-bottom: 48px; }
+  .toc-item { font-size: 12px; padding: 5px 12px; border-radius: 20px; background: rgba(255,255,255,0.04); color: #888; border: 1px solid #1e1e2a; cursor: pointer; text-decoration: none; }
+  .toc-item:hover { color: #F25623; border-color: rgba(242,86,35,0.3); }
+
+  /* ── Note boxes ── */
+  .note { background: rgba(242,86,35,0.06); border: 1px solid rgba(242,86,35,0.2); border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 12px; color: #f78560; line-height: 1.6; }
+  .note strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-badge">UI Reference Document</div>
+    <h1><span>Lancer</span> — Design Reference</h1>
+    <p class="cover-sub">Complete visual and specification reference for building Lancer with Claude Code</p>
+    <div class="cover-meta">
+      <span><strong>Company:</strong> Nordbit OÜ (TBD)</span>
+      <span><strong>Product:</strong> Lancer</span>
+      <span><strong>Version:</strong> 1.0 · April 2026</span>
+      <span><strong>Stack:</strong> Next.js · PocketBase · Stripe · Claude API</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <a class="toc-item" href="#brand">Brand & colors</a>
+    <a class="toc-item" href="#typography">Typography</a>
+    <a class="toc-item" href="#components">Components</a>
+    <a class="toc-item" href="#screens">All 8 screens</a>
+    <a class="toc-item" href="#hifi">High-fidelity mockups</a>
+    <a class="toc-item" href="#specs">Tech specs</a>
+  </div>
+
+  <!-- ══ BRAND ══ -->
+  <div class="section" id="brand">
+    <div class="section-header">
+      <h2>Brand & color palette</h2>
+      <p>All colors — use exactly as specified. No substitutions.</p>
+    </div>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#0D0D12;border:1px solid #1e1e2a;border-radius:8px 8px 0 0"></div>
+        <div class="swatch-info"><div class="swatch-name">Near black</div><div class="swatch-hex">#0D0D12</div><div class="swatch-role">Page background</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F25623;border-radius:8px 8px 0 0"></div>
+        <div class="swatch-info"><div class="swatch-name">Orange</div><div class="swatch-hex">#F25623</div><div class="swatch-role">Primary accent, CTAs, highlights</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#4D4D4D;border-radius:8px 8px 0 0"></div>
+        <div class="swatch-info"><div class="swatch-name">Dark gray</div><div class="swatch-hex">#4D4D4D</div><div class="swatch-role">Secondary surfaces, borders</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#DEDEDE;border:1px solid #ccc;border-radius:8px 8px 0 0"></div>
+        <div class="swatch-info"><div class="swatch-name">Light gray</div><div class="swatch-hex">#DEDEDE</div><div class="swatch-role">Light text on dark, dividers</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#131318;border:1px solid #1e1e2a;border-radius:8px 8px 0 0"></div>
+        <div class="swatch-info"><div class="swatch-name">Card dark</div><div class="swatch-hex">#131318</div><div class="swatch-role">Glassmorphism card surfaces</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:rgba(255,255,255,0.04);border:1px solid #1e1e2a;border-radius:8px 8px 0 0"></div>
+        <div class="swatch-info"><div class="swatch-name">Glass surface</div><div class="swatch-hex">rgba(255,255,255,0.04)</div><div class="swatch-role">Frosted glass cards</div></div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:16px">
+      <strong>Glassmorphism recipe:</strong> background: rgba(255,255,255,0.03–0.06); border: 0.5px solid rgba(255,255,255,0.07–0.12); backdrop-filter: blur(10–16px); border-radius: 12–16px. Use consistently on all card components.
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="info-box">
+        <h4>Background star animation</h4>
+        <p>Every page has a dark #0D0D12 background with two canvas-based animations:<br>
+        1. <strong>Twinkling stars</strong> — ~200 randomly placed dots, varying opacity, flickering with sine wave animation.<br>
+        2. <strong>Shooting stars</strong> — spawn randomly every ~3–5 seconds, travel at 30° angle across the upper portion of the screen, fade out over ~1 second.<br>
+        Use a single shared canvas component placed behind all page content (z-index: 0). Stars rendered in rgba(255,255,255,x) — no colors.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══ TYPOGRAPHY ══ -->
+  <div class="section" id="typography">
+    <div class="section-header">
+      <h2>Typography</h2>
+      <p>Font stack and size scale</p>
+    </div>
+    <table class="spec-table">
+      <thead><tr><th>Element</th><th>Size</th><th>Weight</th><th>Color</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Page hero h1</td><td>36–48px</td><td>700</td><td>#FFFFFF</td><td>letter-spacing: -0.03em</td></tr>
+        <tr><td>Section h2</td><td>24–28px</td><td>600</td><td>#FFFFFF</td><td>letter-spacing: -0.02em</td></tr>
+        <tr><td>Card title</td><td>15–16px</td><td>500</td><td>rgba(255,255,255,0.85)</td><td></td></tr>
+        <tr><td>Body text</td><td>13–14px</td><td>400</td><td>rgba(255,255,255,0.4–0.6)</td><td>line-height: 1.7</td></tr>
+        <tr><td>Labels / meta</td><td>11–12px</td><td>400</td><td>rgba(255,255,255,0.3)</td><td></td></tr>
+        <tr><td>Section labels</td><td>10–11px</td><td>500–600</td><td>rgba(255,255,255,0.25)</td><td>text-transform: uppercase; letter-spacing: 0.07em</td></tr>
+        <tr><td>Prices</td><td>20–28px</td><td>600</td><td>#FFFFFF</td><td></td></tr>
+        <tr><td>Code / mono</td><td>12–13px</td><td>400</td><td>#a0a0c0</td><td>font-family: monospace</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box" style="margin-top:12px">
+      <h4>Font stack</h4>
+      <p>Primary: <code>system-ui, -apple-system, 'Segoe UI', sans-serif</code><br>
+      Mono: <code>'Fira Code', 'Cascadia Code', monospace</code><br>
+      No external font dependencies for MVP. Can upgrade to a custom display font later.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══ COMPONENTS ══ -->
+  <div class="section" id="components">
+    <div class="section-header">
+      <h2>Core components</h2>
+      <p>Reusable UI patterns used across all screens</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="info-box">
+        <h4>Buttons</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button style="padding:8px 18px;border-radius:8px;background:#F25623;border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer">Primary CTA</button>
+          <button style="padding:8px 18px;border-radius:8px;background:rgba(242,86,35,0.12);border:1px solid rgba(242,86,35,0.35);color:#f78560;font-size:13px;cursor:pointer">Secondary</button>
+          <button style="padding:8px 18px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-size:13px;cursor:pointer">Ghost</button>
+        </div>
+        <p>Primary: solid orange. Secondary: orange tint + border. Ghost: white tint + border. All: border-radius: 8px.</p>
+      </div>
+      <div class="info-box">
+        <h4>Badges / pills</h4>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <span style="font-size:10px;padding:3px 9px;border-radius:5px;background:rgba(34,197,94,0.12);color:rgba(134,239,172,0.9);font-weight:600">Freelancer</span>
+          <span style="font-size:10px;padding:3px 9px;border-radius:5px;background:rgba(59,130,246,0.12);color:rgba(147,197,253,0.9);font-weight:600">Studio</span>
+          <span style="font-size:10px;padding:3px 9px;border-radius:5px;background:rgba(242,86,35,0.12);color:#f78560;font-weight:600">Studio+</span>
+          <span style="font-size:10px;padding:3px 9px;border-radius:5px;background:rgba(255,255,255,0.07);color:#777;border:1px solid #1e1e2a">Free</span>
+        </div>
+        <p>Tier badges: green=Basic, blue=Pro, orange=Max, gray=Free.</p>
+      </div>
+      <div class="info-box">
+        <h4>Form inputs</h4>
+        <div style="margin-bottom:8px">
+          <input style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#ccc;font-size:13px;outline:none" placeholder="Placeholder text" />
+        </div>
+        <div style="margin-bottom:8px">
+          <select style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#ccc;font-size:13px">
+            <option>Select option</option>
+          </select>
+        </div>
+        <p>Background: rgba(255,255,255,0.04). Border: rgba(255,255,255,0.10). Focus border: rgba(242,86,35,0.5).</p>
+      </div>
+      <div class="info-box">
+        <h4>Cards (glassmorphism)</h4>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;backdrop-filter:blur(10px);margin-bottom:10px">
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px">Label</div>
+          <div style="font-size:22px;font-weight:600;color:#fff">Value</div>
+          <div style="font-size:11px;color:rgba(242,86,35,0.7);margin-top:3px">Subtext</div>
+        </div>
+        <p>Glass card: rgba(255,255,255,0.03–0.06) bg + rgba(255,255,255,0.07–0.12) border + blur(10px) + radius 12px.</p>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:12px">
+      <h4>Navigation — authenticated screens</h4>
+      <p>Icon-based vertical sidebar on the left (52px wide). Contains: logo mark at top, nav icons (dashboard, quotes, history, settings), spacer, avatar at bottom. Active icon: orange color. Inactive: 50% white opacity. No text labels in sidebar — icons only. Top bar above main content: logo + nav links (desktop) or hamburger (mobile).</p>
+    </div>
+
+    <div class="info-box" style="margin-top:12px">
+      <h4>AI feature boxes</h4>
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:11px;color:rgba(147,197,253,0.9);font-weight:600;margin-bottom:2px">AI quoting assist</div>
+        <div style="font-size:11px;color:rgba(147,197,253,0.6)">Claude Haiku 4.5 — fast & efficient</div>
+        <div style="font-size:11px;color:rgba(147,197,253,0.5);margin-top:3px">Paste a brief, get a tailored quote.</div>
+      </div>
+      <p>Blue tint for AI boxes (rgba(59,130,246,...)). Orange tint for Max included AI (rgba(242,86,35,...)). Include model name as subtitle.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══ SCREENS ══ -->
+  <div class="section" id="screens">
+    <div class="section-header">
+      <h2>All 8 screens — wireframes</h2>
+      <p>Structure and layout reference for each screen. See high-fidelity mockups section for visual style.</p>
+    </div>
+
+    <!-- SCREEN 1 + 2 -->
+    <div class="grid-2" style="margin-bottom:16px">
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 1</span>
+          <span class="screen-label-name">Landing page</span>
+          <span class="screen-label-access">Public</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Public marketing page. Hero section, use case split, pricing summary with interactive AI checkboxes and billing toggle. Links to full pricing page.</p>
+          <div class="screen-features">
+            <span class="feat-tag">Star animation bg</span>
+            <span class="feat-tag">Hero + CTA</span>
+            <span class="feat-tag">Billing toggle</span>
+            <span class="feat-tag orange">Interactive pricing</span>
+            <span class="feat-tag">AI checkboxes</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar">
+              <span class="wf-logo">Lancer</span>
+              <div class="wf-nav"><span>Pricing</span><span>About</span></div>
+              <div class="wf-btns"><span class="wf-btn">Log in</span><span class="wf-btn p">Get started</span></div>
+            </div>
+            <div class="wf-hero">
+              <h3>Quote smarter. <span>Budget better.</span></h3>
+              <p>The pricing and budget tool for game dev freelancers and indie studios.</p>
+              <div class="wf-hero-ctas">
+                <span class="wf-cta solid">Get started free</span>
+                <span class="wf-cta ghost">See how it works</span>
+              </div>
+            </div>
+            <div class="wf-2col">
+              <div class="wf-2col-item"><h4>Freelancers</h4><p>Quote any asset type accurately.</p></div>
+              <div class="wf-2col-item"><h4>Indie devs & studios</h4><p>Budget your full art production.</p></div>
+            </div>
+            <div style="padding:8px 10px;border-bottom:1px solid #1e1e2a;display:flex;gap:6px;align-items:center">
+              <span style="font-size:10px;color:#555">Billing</span>
+              <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(242,86,35,0.1);color:#f78560;border:1px solid rgba(242,86,35,0.25)">Monthly</span>
+              <span style="font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #1e1e2a;color:#555">Yearly</span>
+            </div>
+            <div class="wf-tier-grid">
+              <div class="wf-tier"><div class="wf-tier-n">Free</div><div class="wf-tier-p">€0</div><div class="wf-tier-f">1 discipline</div><div class="wf-tier-f">3 quotes/mo</div></div>
+              <div class="wf-tier hl"><div class="wf-tier-n" style="color:#f78560">Basic</div><div class="wf-tier-p">€7/mo</div><div class="wf-tier-f">All disciplines</div><div class="wf-tier-ai">+ AI €6/mo</div></div>
+              <div class="wf-tier"><div class="wf-tier-n">Pro</div><div class="wf-tier-p">€15/mo</div><div class="wf-tier-f">Budget estimator</div><div class="wf-tier-ai">+ AI €10/mo</div></div>
+              <div class="wf-tier"><div class="wf-tier-n">Max</div><div class="wf-tier-p">€38/mo</div><div class="wf-tier-f">3 team seats</div><div class="wf-tier-ai">AI included</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 2</span>
+          <span class="screen-label-name">Pricing page</span>
+          <span class="screen-label-access">Public</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Dedicated full pricing page. Full feature comparison table, FAQ accordion, billing toggle, AI add-on checkboxes with live total updates.</p>
+          <div class="screen-features">
+            <span class="feat-tag">Billing toggle</span>
+            <span class="feat-tag orange">Feature comparison table</span>
+            <span class="feat-tag">AI checkboxes</span>
+            <span class="feat-tag">Live totals</span>
+            <span class="feat-tag">FAQ accordion</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar">
+              <span class="wf-logo">Lancer</span>
+              <div class="wf-nav"><span>Home</span><span class="act">Pricing</span><span>About</span></div>
+            </div>
+            <div style="padding:10px;text-align:center;border-bottom:1px solid #1e1e2a">
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:3px">Simple, transparent pricing</div>
+              <div style="font-size:10px;color:#555">Start free. No surprises.</div>
+            </div>
+            <div style="padding:8px;overflow-x:auto">
+              <table class="wf-cmp-table">
+                <thead><tr><th>Feature</th><th>Free</th><th>Basic</th><th>Pro</th><th>Max</th></tr></thead>
+                <tbody>
+                  <tr class="cat"><td colspan="5">Quoting</td></tr>
+                  <tr><td>Disciplines</td><td>1</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+                  <tr><td>Quotes/mo</td><td>3</td><td>∞</td><td>∞</td><td>∞</td></tr>
+                  <tr><td>Benchmarks</td><td><span class="cx">—</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+                  <tr class="cat"><td colspan="5">Export</td></tr>
+                  <tr><td>PDF export</td><td><span class="cx">—</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+                  <tr><td>CSV export</td><td><span class="cx">—</span></td><td><span class="cx">—</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+                  <tr class="cat"><td colspan="5">AI</td></tr>
+                  <tr><td>AI quoting</td><td><span class="cx">—</span></td><td>+€6</td><td>+€6</td><td><span class="ck">✓</span></td></tr>
+                  <tr><td>AI budget</td><td><span class="cx">—</span></td><td><span class="cx">—</span></td><td>+€10</td><td><span class="ck">✓</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="wf-faq">
+              <div class="wf-faq-item"><div class="wf-faq-q"><span>Can I switch plans?</span><span>+</span></div><div class="wf-faq-a">Yes — anytime. Upgrades immediate, downgrades at period end.</div></div>
+              <div class="wf-faq-item"><div class="wf-faq-q"><span>What currency is billing?</span><span>+</span></div></div>
+              <div class="wf-faq-item"><div class="wf-faq-q"><span>Can I cancel anytime?</span><span>+</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3 + 4 -->
+    <div class="grid-2" style="margin-bottom:16px">
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 3</span>
+          <span class="screen-label-name">Onboarding</span>
+          <span class="screen-label-access">Public</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Account creation. Name, email, password. Role selector (Freelancer free / Indie dev Pro). Primary discipline dropdown. Skills checkbox grid (2 on Free, all on Basic+). Location region+country. Working currency picker (€/£/$).</p>
+          <div class="screen-features">
+            <span class="feat-tag">Role selector</span>
+            <span class="feat-tag orange">Skills checkboxes</span>
+            <span class="feat-tag">Location 2-level</span>
+            <span class="feat-tag orange">Currency picker</span>
+            <span class="feat-tag">Custom skill input</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar"><span class="wf-logo">Lancer</span></div>
+            <div class="wf-body">
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:3px">Create your account</div>
+              <div style="font-size:10px;color:#555;margin-bottom:10px">Takes about 60 seconds.</div>
+              <div class="wf-fl"><div class="wf-fl-l">Name</div><div class="wf-fi">Oskar</div></div>
+              <div class="wf-fl"><div class="wf-fl-l">Email</div><div class="wf-fi">oskar@email.com</div></div>
+              <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.07em;margin:8px 0 5px">I am a...</div>
+              <div class="wf-sel-row">
+                <div class="wf-sel on">Freelancer</div>
+                <div class="wf-sel" style="position:relative">Indie dev / studio <span style="font-size:8px;color:rgba(147,197,253,0.7);position:absolute;top:3px;right:4px">Pro</span></div>
+              </div>
+              <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.07em;margin:8px 0 5px">Additional skills</div>
+              <div class="wf-skills">
+                <div class="wf-skill on"><div class="wf-sk-box">✓</div>Hard surface 3D</div>
+                <div class="wf-skill"><div class="wf-sk-box"></div>Character art</div>
+                <div class="wf-skill lk"><div class="wf-sk-box"></div>2D / concept</div>
+                <div class="wf-skill lk"><div class="wf-sk-box"></div>Environment</div>
+              </div>
+              <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:0.07em;margin:8px 0 5px">Working currency</div>
+              <div class="wf-curr">
+                <div class="wf-curr-opt on"><span class="wf-curr-sym">€</span><span class="wf-curr-name">Euro</span></div>
+                <div class="wf-curr-opt"><span class="wf-curr-sym">£</span><span class="wf-curr-name">GBP</span></div>
+                <div class="wf-curr-opt"><span class="wf-curr-sym">$</span><span class="wf-curr-name">USD</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 4</span>
+          <span class="screen-label-name">Dashboard</span>
+          <span class="screen-label-access">All tiers</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Main logged-in home. Welcome message, usage metrics (quotes this month, saved total), quick action buttons, recent quotes list, upgrade prompt strip at bottom.</p>
+          <div class="screen-features">
+            <span class="feat-tag">Icon sidebar</span>
+            <span class="feat-tag orange">Metric cards</span>
+            <span class="feat-tag">Quick actions</span>
+            <span class="feat-tag">Recent list</span>
+            <span class="feat-tag">Upgrade strip</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div style="display:grid;grid-template-columns:36px 1fr;min-height:200px">
+              <div style="background:#0a0a14;border-right:1px solid #1e1e2a;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:6px">
+                <div style="width:22px;height:22px;border-radius:5px;background:#F25623;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;margin-bottom:4px">L</div>
+                <div style="width:24px;height:24px;border-radius:5px;background:rgba(242,86,35,0.12);border:1px solid rgba(242,86,35,0.3)"></div>
+                <div style="width:24px;height:24px;border-radius:5px"></div>
+                <div style="width:24px;height:24px;border-radius:5px"></div>
+                <div style="flex:1"></div>
+                <div style="width:20px;height:20px;border-radius:50%;background:rgba(242,86,35,0.2)"></div>
+              </div>
+              <div>
+                <div class="wf-bar" style="padding:6px 10px">
+                  <div><div style="font-size:11px;font-weight:600;color:#fff">Good morning, Oskar</div><div style="font-size:9px;color:#555">Free plan</div></div>
+                  <div class="wf-btn p" style="font-size:9px">+ New quote</div>
+                </div>
+                <div style="padding:8px 10px">
+                  <div class="wf-metric-grid">
+                    <div class="wf-metric"><div class="wf-metric-l">Quotes this month</div><div class="wf-metric-v">2/3</div></div>
+                    <div class="wf-metric"><div class="wf-metric-l">Saved quotes</div><div class="wf-metric-v">5</div></div>
+                  </div>
+                  <div class="wf-act-grid">
+                    <div class="wf-act p">+ New quote</div>
+                    <div class="wf-act">Budget est. <span class="wf-badge pro" style="margin-left:4px">Pro</span></div>
+                  </div>
+                  <div class="wf-list-item"><div><div class="wf-li-l">Hard surface prop — mid</div><div class="wf-li-s">3D · Estonia · Apr 8</div></div><div class="wf-li-r">€336–504</div></div>
+                  <div class="wf-list-item"><div><div class="wf-li-l">Environment piece — complex</div><div class="wf-li-s">3D · Estonia · Apr 2</div></div><div class="wf-li-r">€800–1,200</div></div>
+                </div>
+                <div class="wf-strip"><p>1 of 3 quotes remaining</p><span>Upgrade →</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 5 + 6 -->
+    <div class="grid-2" style="margin-bottom:16px">
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 5</span>
+          <span class="screen-label-name">Quote builder</span>
+          <span class="screen-label-access">All tiers</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">5-step quote flow. Progress bar at top. Left panel: step inputs. Right panel: live output (price range, breakdown, confidence indicator). Step 3 shown: rate & hours with suggested/custom toggle. AI quoting assist box (Basic+).</p>
+          <div class="screen-features">
+            <span class="feat-tag">5-step progress bar</span>
+            <span class="feat-tag orange">Live output panel</span>
+            <span class="feat-tag">Suggested/custom toggle</span>
+            <span class="feat-tag">Confidence indicator</span>
+            <span class="feat-tag orange">AI assist box</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar"><span class="wf-logo">Lancer</span><span class="wf-btn">Save quote</span></div>
+            <div class="wf-body">
+              <div class="wf-step-bar">
+                <div class="wf-step done"></div><div class="wf-step done"></div>
+                <div class="wf-step active"></div><div class="wf-step"></div><div class="wf-step"></div>
+              </div>
+              <div class="wf-split">
+                <div>
+                  <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Step 3 — Rate & hours</div>
+                  <div class="wf-fl"><div class="wf-fl-l">Hourly rate</div>
+                    <div class="wf-sel-row"><div class="wf-sel on">Suggested €42/hr</div><div class="wf-sel">Custom</div></div>
+                    <div style="font-size:9px;color:#555">3D Hard Surface · Senior · Estonia</div>
+                  </div>
+                  <div class="wf-fl"><div class="wf-fl-l">Hours</div>
+                    <div class="wf-sel-row"><div class="wf-sel on">Suggested 8–12hr</div><div class="wf-sel">Manual</div></div>
+                  </div>
+                  <div class="wf-fl"><div class="wf-fl-l">Revisions</div><div class="wf-fi">2 rounds</div></div>
+                  <div class="wf-fl"><div class="wf-fl-l">Usage rights</div><div class="wf-fi">Indie commercial</div></div>
+                  <div class="wf-ai"><div class="wf-ai-l">AI quoting assist</div><div class="wf-ai-m">Claude Haiku 4.5 · Paste a brief →</div></div>
+                </div>
+                <div class="wf-output">
+                  <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Quote estimate</div>
+                  <div class="wf-output-range">€336–€504</div>
+                  <div class="wf-output-row"><span>Base rate</span><span>€42/hr</span></div>
+                  <div class="wf-output-row"><span>Hours</span><span>8–12</span></div>
+                  <div class="wf-output-row"><span>Revisions</span><span>+€84</span></div>
+                  <div class="wf-output-row" style="border:none"><span>Rights</span><span>+€50</span></div>
+                  <div style="display:flex;align-items:center;gap:5px;margin-top:8px">
+                    <span style="font-size:9px;color:#555">Confidence</span>
+                    <div style="flex:1;height:3px;background:#1a1a26;border-radius:2px"><div style="width:75%;height:3px;background:#888;border-radius:2px"></div></div>
+                    <span style="font-size:9px;color:#555">75%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 6</span>
+          <span class="screen-label-name">Budget estimator</span>
+          <span class="screen-label-access">Pro + Max</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Pro tier budget planning tool. Project settings row at top. Asset list table with add row. AI budget analysis box. Summary panel with total range and export buttons.</p>
+          <div class="screen-features">
+            <span class="feat-tag">Project settings</span>
+            <span class="feat-tag orange">Asset list builder</span>
+            <span class="feat-tag">Per-category costs</span>
+            <span class="feat-tag orange">AI analysis box</span>
+            <span class="feat-tag">PDF + CSV export</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar"><span class="wf-logo">Lancer</span><span class="wf-badge pro">Pro</span></div>
+            <div class="wf-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+                <div class="wf-fl" style="margin:0"><div class="wf-fl-l">Project type</div><div class="wf-fi">Indie PC</div></div>
+                <div class="wf-fl" style="margin:0"><div class="wf-fl-l">Quality</div><div class="wf-fi">Stylized</div></div>
+                <div class="wf-fl" style="margin:0"><div class="wf-fl-l">Region</div><div class="wf-fi">E. Europe</div></div>
+              </div>
+              <table class="wf-at">
+                <thead><tr><th>Category</th><th>Qty</th><th>Complexity</th><th>Cost</th></tr></thead>
+                <tbody>
+                  <tr><td>Hard surface props</td><td>10</td><td>Mid</td><td>€2,400–3,600</td></tr>
+                  <tr><td>Characters</td><td>3</td><td>Complex</td><td>€4,200–6,000</td></tr>
+                  <tr><td>Environments</td><td>2</td><td>Complex</td><td>€2,800–4,000</td></tr>
+                </tbody>
+              </table>
+              <div style="font-size:10px;color:#F25623;padding:5px 0;cursor:pointer">+ Add category</div>
+              <div class="wf-ai" style="margin-bottom:8px"><div class="wf-ai-l">AI budget analysis</div><div class="wf-ai-m">Claude Sonnet 4.6 · Analyse budget →</div></div>
+              <div style="background:#131320;border-radius:6px;padding:10px">
+                <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Total estimate</div>
+                <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:6px">€9,400–€13,600</div>
+                <div style="display:flex;gap:5px;margin-top:8px">
+                  <div style="flex:1;padding:5px;border-radius:4px;border:1px solid #1e1e2a;font-size:10px;text-align:center;color:#666">Export PDF</div>
+                  <div style="flex:1;padding:5px;border-radius:4px;border:1px solid #1e1e2a;font-size:10px;text-align:center;color:#666">Export CSV</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 7 + 8 -->
+    <div class="grid-2">
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 7</span>
+          <span class="screen-label-name">History</span>
+          <span class="screen-label-access">Basic+</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Saved quotes and budget estimates. Filter by type. Status tags: Draft, Sent, Accepted. Pro lock box for budget estimates on Basic tier.</p>
+          <div class="screen-features">
+            <span class="feat-tag">Filter dropdown</span>
+            <span class="feat-tag orange">Status tags</span>
+            <span class="feat-tag">Quote list</span>
+            <span class="feat-tag">Pro lock box</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar"><span class="wf-logo">Lancer</span></div>
+            <div class="wf-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <div style="font-size:14px;font-weight:700;color:#fff">History</div>
+                <div class="wf-fi" style="width:auto;padding:4px 8px;font-size:10px">All types</div>
+              </div>
+              <div class="wf-list-item">
+                <div><div class="wf-li-l">Hard surface prop · mid</div><div class="wf-li-s">3D artist · Apr 8 2026</div></div>
+                <div style="text-align:right"><div class="wf-li-r">€336–504</div><div class="wf-badge free" style="margin-top:3px">Draft</div></div>
+              </div>
+              <div class="wf-list-item">
+                <div><div class="wf-li-l">Environment piece · complex</div><div class="wf-li-s">3D artist · Apr 2 2026</div></div>
+                <div style="text-align:right"><div class="wf-li-r">€800–1,200</div><div class="wf-badge basic" style="margin-top:3px">Accepted</div></div>
+              </div>
+              <div class="wf-list-item">
+                <div><div class="wf-li-l">Character model · hero</div><div class="wf-li-s">3D artist · Mar 28 2026</div></div>
+                <div style="text-align:right"><div class="wf-li-r">€1,400–2,000</div><div class="wf-badge free" style="margin-top:3px">Sent</div></div>
+              </div>
+              <div class="wf-lock">
+                <p>Budget estimates available on Pro</p>
+                <span class="wf-badge pro">Upgrade</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">
+          <span class="screen-label-num">Screen 8</span>
+          <span class="screen-label-name">Profile & settings</span>
+          <span class="screen-label-access">All tiers</span>
+        </div>
+        <div class="screen-content">
+          <p class="screen-desc">Personal details, work defaults (discipline, experience, location region+country, hourly rate), skills manager, working currency selector, subscription management.</p>
+          <div class="screen-features">
+            <span class="feat-tag">Personal info</span>
+            <span class="feat-tag">Work defaults</span>
+            <span class="feat-tag orange">Skills manager</span>
+            <span class="feat-tag orange">Currency selector</span>
+            <span class="feat-tag">Subscription</span>
+          </div>
+          <div style="margin-top:12px" class="wf">
+            <div class="wf-bar"><span class="wf-logo">Lancer</span></div>
+            <div class="wf-body">
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:10px">Profile & settings</div>
+              <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Work defaults</div>
+              <div class="wf-fl"><div class="wf-fl-l">Primary discipline</div><div class="wf-fi">3D artist (hard surface)</div></div>
+              <div class="wf-fl"><div class="wf-fl-l">Experience level</div><div class="wf-fi">Senior</div></div>
+              <div class="wf-fl"><div class="wf-fl-l">Location</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+                  <div class="wf-fi">Eastern Europe</div>
+                  <div class="wf-fi">Estonia</div>
+                </div>
+              </div>
+              <div class="wf-fl"><div class="wf-fl-l">Hourly rate</div><div class="wf-fi">€42/hr</div></div>
+              <div class="wf-fl"><div class="wf-fl-l">Working currency</div>
+                <div class="wf-curr">
+                  <div class="wf-curr-opt on"><span class="wf-curr-sym">€</span><span class="wf-curr-name">Euro</span></div>
+                  <div class="wf-curr-opt"><span class="wf-curr-sym">£</span><span class="wf-curr-name">GBP</span></div>
+                  <div class="wf-curr-opt"><span class="wf-curr-sym">$</span><span class="wf-curr-name">USD</span></div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #131320;margin-top:8px">
+                <div><div style="font-size:11px;color:#ccc">Current plan</div><div style="font-size:9px;color:#555">Renews May 2026</div></div>
+                <span class="wf-badge basic">Basic</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══ HIFI ══ -->
+  <div class="section" id="hifi">
+    <div class="section-header">
+      <h2>High-fidelity mockups</h2>
+      <p>Visual style reference — dark space theme, glassmorphism, orange accent. Replicate this aesthetic across all screens.</p>
+    </div>
+
+    <div class="note" style="margin-bottom:20px">
+      <strong>Key visual principles to replicate:</strong> Dark #0D0D12 background with animated star canvas. Glassmorphism cards (rgba white fill + blur + subtle border). Orange #F25623 as the only accent color. White text at varying opacity levels for hierarchy. Icon-based sidebar (authenticated). All cards have border-radius: 12–16px. No harsh shadows — depth comes from background color differences only.
+    </div>
+
+    <!-- Dashboard mockup -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;color:#666;margin-bottom:8px;font-weight:500">Screen 4 — Dashboard (authenticated, dark space theme)</div>
+      <div class="hifi-wrap" style="font-family:system-ui,sans-serif">
+        <div style="display:grid;grid-template-columns:52px 1fr;min-height:420px;background:#0d0d12;position:relative">
+          <canvas id="c1" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+          <div style="background:rgba(255,255,255,0.03);border-right:0.5px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px;position:relative;z-index:1">
+            <div style="width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f25623,#c43d10);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">L</div>
+            <div style="width:34px;height:34px;border-radius:8px;background:rgba(242,86,35,0.15);border:1px solid rgba(242,86,35,0.3);display:flex;align-items:center;justify-content:center">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f25623" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div style="width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <div style="width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+            </div>
+            <div style="flex:1"></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:rgba(242,86,35,0.2);border:1px solid rgba(242,86,35,0.4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#f25623">OS</div>
+          </div>
+          <div style="display:flex;flex-direction:column;position:relative;z-index:1">
+            <div style="padding:11px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)">
+              <div><div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.9)">Good morning, Oskar</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">Friday, April 10 · Free plan</div></div>
+              <div style="display:flex;gap:7px">
+                <div style="padding:5px 12px;border-radius:7px;border:0.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);font-size:11px;color:rgba(255,255,255,0.5)">History</div>
+                <div style="padding:5px 12px;border-radius:7px;background:rgba(242,86,35,0.15);border:0.5px solid rgba(242,86,35,0.4);font-size:11px;color:#f78560;font-weight:500">+ New quote</div>
+              </div>
+            </div>
+            <div style="padding:16px 18px;flex:1">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+                <div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px">
+                  <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:5px">Quotes this month</div>
+                  <div style="font-size:22px;font-weight:500;color:#fff">2 / 3</div>
+                  <div style="font-size:10px;color:rgba(242,86,35,0.7);margin-top:3px">1 remaining on free</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px">
+                  <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:5px">Saved quotes</div>
+                  <div style="font-size:22px;font-weight:500;color:#fff">5</div>
+                  <div style="font-size:10px;color:rgba(242,86,35,0.7);margin-top:3px">Last saved 2 days ago</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px">
+                  <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:5px">Avg quote value</div>
+                  <div style="font-size:22px;font-weight:500;color:#fff">€680</div>
+                  <div style="font-size:10px;color:rgba(242,86,35,0.7);margin-top:3px">Last 5 quotes</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+                <div style="border-radius:10px;padding:11px 14px;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;border:0.5px solid rgba(242,86,35,0.35);background:rgba(242,86,35,0.12);color:#f78560">+ New quote</div>
+                <div style="border-radius:10px;padding:11px 14px;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4)">Budget estimator <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(59,130,246,0.12);color:rgba(147,197,253,0.8);margin-left:auto">Pro</span></div>
+              </div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Recent quotes</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.07);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center">
+                  <div><div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:3px">Hard surface prop — mid complexity</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">3D artist · Estonia · 2 revisions · Apr 8</div></div>
+                  <div style="text-align:right"><div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500">€336–504</div><div style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);margin-top:3px;display:inline-block">Draft</div></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.07);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center">
+                  <div><div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:3px">Environment piece — complex</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">3D artist · Estonia · 1 revision · Apr 2</div></div>
+                  <div style="text-align:right"><div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500">€800–1,200</div><div style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(34,197,94,0.12);color:rgba(134,239,172,0.7);margin-top:3px;display:inline-block">Accepted</div></div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:10px 18px;border-top:0.5px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:space-between">
+              <div><div style="font-size:11px;color:rgba(255,255,255,0.3)">1 of 3 free quotes remaining this month</div><div style="display:flex;align-items:center;gap:7px;margin-top:3px"><div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.08);max-width:120px"><div style="width:66%;height:3px;border-radius:2px;background:rgba(242,86,35,0.6)"></div></div><span style="font-size:10px;color:rgba(255,255,255,0.25)">2/3</span></div></div>
+              <div style="font-size:12px;color:#f78560;cursor:pointer">Upgrade to Basic →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Landing page and pricing page mockups</strong> follow the same visual language — dark #0D0D12 background, star animation, glassmorphism cards, orange #F25623 accents. The landing page has a large hero section with a headline, subtext, and two CTAs. The pricing page has tier cards with interactive AI add-on checkboxes and a full feature comparison table. See the product brief for full descriptions of both screens.
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══ SPECS ══ -->
+  <div class="section" id="specs">
+    <div class="section-header">
+      <h2>Technical specifications</h2>
+      <p>Stack, tiers, AI, and data reference for Claude Code</p>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="info-box">
+        <h4>Tech stack</h4>
+        <ul>
+          <li><strong>Frontend:</strong> Next.js (React) — App Router</li>
+          <li><strong>Backend / Auth / DB:</strong> PocketBase — runs on Oracle VM</li>
+          <li><strong>Payments:</strong> Stripe — subscriptions in EUR</li>
+          <li><strong>AI:</strong> Anthropic Claude API (see models below)</li>
+          <li><strong>Hosting:</strong> Oracle Cloud Free VM + Zone.ee domain</li>
+          <li><strong>Version control:</strong> GitHub</li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <h4>Subscription tiers</h4>
+        <ul>
+          <li><strong>Free:</strong> €0 — 1 discipline, 3 quotes/mo</li>
+          <li><strong>Basic:</strong> €7/mo — all disciplines, unlimited quotes, PDF export</li>
+          <li><strong>Pro:</strong> €15/mo — budget estimator, team tools</li>
+          <li><strong>Max:</strong> €38/mo — 3 seats, branded exports, full AI</li>
+          <li>Yearly: save 2 months. Always billed in EUR.</li>
+          <li>Working currency (quotes/exports): EUR, GBP, USD</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-bottom:12px">
+      <h4>AI features — Claude API</h4>
+      <table class="spec-table" style="margin-top:8px">
+        <thead><tr><th>Tier</th><th>Feature</th><th>Model</th><th>Requests/mo</th><th>Overage</th></tr></thead>
+        <tbody>
+          <tr><td>Basic (add-on +€6/mo)</td><td>AI quoting assist</td><td><code>claude-haiku-4-5-20251001</code></td><td>15</td><td>€0.20 each</td></tr>
+          <tr><td>Pro (add-on +€10/mo)</td><td>AI budget analysis</td><td><code>claude-sonnet-4-6</code></td><td>20</td><td>€0.50 each</td></tr>
+          <tr><td>Max (included)</td><td>Full AI suite</td><td><code>claude-opus-4-6</code></td><td>100</td><td>€1.00 each</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box" style="margin-bottom:12px">
+      <h4>AI system prompt — quoting assist (Basic)</h4>
+      <p style="margin-bottom:8px">Send as system message. User message template follows below.</p>
+      <div style="background:#0a0a14;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:11px;color:#a0a0c0;line-height:1.7;white-space:pre-wrap">You are a game dev freelance pricing assistant built into Lancer,
+a quoting tool for game artists and developers. Your job is to
+analyse a client brief and suggest a structured quote.
+
+Always respond in valid JSON only. No preamble, no markdown.
+
+{
+  "asset_type": string,
+  "complexity_tier": "Simple"|"Mid"|"Complex"|"Hero",
+  "estimated_hours_min": number,
+  "estimated_hours_max": number,
+  "suggested_rate_eur": number,
+  "revisions_included": number,
+  "usage_rights": "Personal"|"Indie"|"Commercial"|"AAA",
+  "rush_job": boolean,
+  "quote_min_eur": number,
+  "quote_max_eur": number,
+  "confidence": "Low"|"Medium"|"High",
+  "confidence_reason": string,
+  "notes": string
+}</div>
+    </div>
+
+    <div class="info-box" style="margin-bottom:12px">
+      <h4>AI system prompt — budget analysis (Pro)</h4>
+      <div style="background:#0a0a14;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:11px;color:#a0a0c0;line-height:1.7;white-space:pre-wrap">You are a game art budget analyst built into Lancer. Analyse a
+game art budget and provide honest, practical feedback.
+
+Always respond in valid JSON only. No preamble, no markdown.
+
+{
+  "overall_assessment": "Realistic"|"Optimistic"|"Underbudgeted"|"Overbudgeted",
+  "confidence": "Low"|"Medium"|"High",
+  "summary": string,
+  "risk_flags": [{ "category": string, "severity": "Low"|"Medium"|"High",
+    "issue": string, "suggestion": string }],
+  "missing_categories": [string],
+  "timeline_feasibility": "Feasible"|"Tight"|"Unrealistic"|"Unknown",
+  "timeline_note": string,
+  "recommended_contingency_pct": number,
+  "revised_total_min_eur": number,
+  "revised_total_max_eur": number
+}</div>
+    </div>
+
+    <div class="info-box">
+      <h4>Rate benchmark data</h4>
+      <p>Rate data is in <code>Lancer_Rate_Benchmarks_v1.xlsx</code>. Hard-code for MVP. Sheets: Hourly Rates (8 disciplines × 4 regions × 4 experience levels), Asset Time Estimates (22 asset types × 4 complexity tiers), Currency Rates (EUR/GBP/USD), Usage Rights Multipliers, Revision Pricing.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:32px 0;border-top:1px solid #1e1e2a;margin-top:32px">
+    <div style="font-size:12px;color:#444">Lancer UI Reference v1.0 · Nordbit OÜ · April 2026</div>
+    <div style="font-size:11px;color:#333;margin-top:4px">For use with Claude Code — provide alongside Lancer_Product_Brief_v7.docx</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var c=document.getElementById('c1');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  var stars=[];
+  var shoots=[];
+  function resize(){
+    var p=c.parentElement;
+    c.width=Math.round(p.offsetWidth||600);
+    c.height=Math.round(p.offsetHeight||420);
+    stars=[];
+    for(var i=0;i<120;i++){
+      stars.push({x:Math.random()*c.width,y:Math.random()*c.height,
+        r:Math.random()*0.9+0.2,a:Math.random()*0.5+0.1,
+        fl:Math.random()*0.02+0.005,ph:Math.random()*Math.PI*2});
+    }
+  }
+  function spawnShoot(){
+    shoots.push({x:Math.random()*c.width*0.6+c.width*0.1,
+      y:Math.random()*c.height*0.35,len:60+Math.random()*60,
+      speed:3+Math.random()*3,angle:Math.PI/6+Math.random()*0.25,
+      life:1,decay:0.012+Math.random()*0.012});
+  }
+  var fr=0;
+  function draw(){
+    requestAnimationFrame(draw);
+    ctx.clearRect(0,0,c.width,c.height);
+    fr++;
+    stars.forEach(function(s){
+      var a=s.a+Math.sin(fr*s.fl+s.ph)*0.12;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+Math.max(0,Math.min(1,a))+')';
+      ctx.fill();
+    });
+    if(fr%200===0&&Math.random()<0.7)spawnShoot();
+    shoots=shoots.filter(function(s){return s.life>0});
+    shoots.forEach(function(s){
+      var ex=s.x+Math.cos(s.angle)*s.len*s.life;
+      var ey=s.y+Math.sin(s.angle)*s.len*s.life;
+      var g=ctx.createLinearGradient(s.x,s.y,ex,ey);
+      g.addColorStop(0,'rgba(255,255,255,0)');
+      g.addColorStop(0.5,'rgba(255,220,180,'+s.life*0.5+')');
+      g.addColorStop(1,'rgba(255,255,255,'+s.life*0.8+')');
+      ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(ex,ey);
+      ctx.strokeStyle=g;ctx.lineWidth=1;ctx.stroke();
+      s.x+=Math.cos(s.angle)*s.speed;
+      s.y+=Math.sin(s.angle)*s.speed;
+      s.life-=s.decay;
+    });
+  }
+  resize();draw();
+  setTimeout(spawnShoot,1000);setTimeout(spawnShoot,3500);
+})();
+</script>
+</body>
+</html>

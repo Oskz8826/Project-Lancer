@@ -1,0 +1,69 @@
+[
+  {
+    "name": "users",
+    "type": "auth",
+    "fields": [
+      {
+        "name": "role",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": ["freelancer", "studio"]
+        }
+      },
+      {
+        "name": "primary_discipline",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "additional_skills",
+        "type": "json",
+        "required": false
+      },
+      {
+        "name": "region",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "country",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "working_currency",
+        "type": "select",
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "values": ["EUR", "GBP", "USD"]
+        }
+      },
+      {
+        "name": "tier",
+        "type": "select",
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "values": ["free", "basic", "pro", "max"]
+        }
+      },
+      {
+        "name": "ai_addon",
+        "type": "bool",
+        "required": false
+      },
+      {
+        "name": "quotes_used_this_month",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": null
+        }
+      }
+    ]
+  }
+]
