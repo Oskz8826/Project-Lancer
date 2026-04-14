@@ -272,8 +272,9 @@ export default function DashboardPage() {
               Budget estimator
               {isBasicOrBelow && (
                 <span style={{
-                  fontSize: '10px', padding: '2px 6px', borderRadius: '4px',
+                  fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px',
                   background: 'rgba(59,130,246,0.15)', color: '#3b82f6',
+                  border: '1px solid #3b82f6', lineHeight: 1.4,
                   marginLeft: 'auto',
                 }}>Pro</span>
               )}
