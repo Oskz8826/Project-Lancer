@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 
 function Checkbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -76,6 +77,7 @@ function Cell({ value }: { value: string | boolean }) {
 }
 
 export default function PricingPage() {
+  const { user, loading, logout } = useAuth()
   const [billing, setBilling] = useState<Billing>('monthly')
   const [aiBasic, setAiBasic] = useState(false)
   const [aiPro,   setAiPro]   = useState(false)
@@ -113,10 +115,18 @@ export default function PricingPage() {
           <span style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>Pricing</span>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link href="/login" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sign in</Link>
-          <Link href="/onboarding" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>
-            Get started free
-          </Link>
+          {!loading && (user ? (
+            <>
+              <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)' }}>{user.name}</span>
+              <Link href="/dashboard" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>Dashboard</Link>
+              <button onClick={logout} style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Sign out</button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sign in</Link>
+              <Link href="/onboarding" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>Get started free</Link>
+            </>
+          ))}
         </div>
       </nav>
 
