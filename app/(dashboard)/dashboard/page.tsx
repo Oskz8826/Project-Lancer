@@ -95,11 +95,12 @@ export default function DashboardPage() {
   const quotesRemaining = isFree ? Math.max(quoteCap - quotesUsed, 0) : null
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr', minHeight: '100vh', background: '#0d0d12' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr', minHeight: '100vh' }}>
 
       {/* ── Sidebar ── */}
       <div style={{
         background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         borderRight: '0.5px solid rgba(255,255,255,0.07)',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         padding: '14px 0', gap: '6px',
@@ -171,7 +172,8 @@ export default function DashboardPage() {
           padding: '11px 18px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           borderBottom: '0.5px solid rgba(255,255,255,0.06)',
-          background: 'rgba(255,255,255,0.02)',
+          background: 'rgba(13,13,18,0.8)',
+          backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         }}>
           <div>
             <div style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
@@ -207,6 +209,7 @@ export default function DashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '14px' }}>
             <div style={{
               background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
               borderRadius: '12px', padding: '12px',
             }}>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginBottom: '5px' }}>Quotes this month</div>
@@ -220,6 +223,7 @@ export default function DashboardPage() {
 
             <div style={{
               background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
               borderRadius: '12px', padding: '12px',
             }}>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginBottom: '5px' }}>Saved quotes</div>
@@ -229,6 +233,7 @@ export default function DashboardPage() {
 
             <div style={{
               background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
               borderRadius: '12px', padding: '12px',
             }}>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginBottom: '5px' }}>Avg quote value</div>
@@ -246,6 +251,7 @@ export default function DashboardPage() {
                 cursor: 'pointer',
                 border: '0.5px solid rgba(242,86,35,0.35)',
                 background: 'rgba(242,86,35,0.12)', color: '#f78560',
+                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
               }}>+ New quote</div>
             </Link>
 
@@ -255,6 +261,7 @@ export default function DashboardPage() {
               cursor: isBasicOrBelow ? 'default' : 'pointer',
               border: '0.5px solid rgba(255,255,255,0.1)',
               background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)',
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
               opacity: isBasicOrBelow ? 0.6 : 1,
             }}>
               Budget estimator
@@ -276,6 +283,7 @@ export default function DashboardPage() {
 
           <div style={{
             background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)',
+            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
             borderRadius: '10px', padding: '24px 14px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
             textAlign: 'center',
@@ -295,7 +303,8 @@ export default function DashboardPage() {
           <div style={{
             padding: '10px 18px',
             borderTop: '0.5px solid rgba(255,255,255,0.05)',
-            background: 'rgba(255,255,255,0.02)',
+            background: 'rgba(13,13,18,0.8)',
+            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div>
