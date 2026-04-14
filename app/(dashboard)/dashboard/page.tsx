@@ -265,11 +265,10 @@ export default function DashboardPage() {
               fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px',
               cursor: isBasicOrBelow ? 'default' : 'pointer',
               border: '0.5px solid rgba(255,255,255,0.1)',
-              background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)',
+              background: 'rgba(255,255,255,0.04)',
               backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-              opacity: isBasicOrBelow ? 0.6 : 1,
             }}>
-              Budget estimator
+              <span style={{ color: 'rgba(255,255,255,0.4)', opacity: isBasicOrBelow ? 0.6 : 1 }}>Budget estimator</span>
               {isBasicOrBelow && (
                 <span style={{
                   fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px',
