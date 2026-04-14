@@ -89,7 +89,7 @@ export default function DashboardPage() {
   const isBasicOrBelow = tier === 'free' || tier === 'basic'
   const greeting = getGreeting()
   const dateStr = getDateString()
-  const initials = getInitials(user.name || 'U')
+  const initials = getInitials(user.name || user.email?.split('@')[0] || 'U')
   const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1)
   const quotaFillPct = isFree ? Math.min((quotesUsed / quoteCap) * 100, 100) : 0
   const quotesRemaining = isFree ? Math.max(quoteCap - quotesUsed, 0) : null
@@ -106,13 +106,16 @@ export default function DashboardPage() {
         padding: '14px 0', gap: '6px',
         position: 'sticky', top: 0, height: '100vh',
       }}>
-        {/* Logo mark */}
-        <div style={{
-          width: '30px', height: '30px', borderRadius: '7px',
-          background: 'linear-gradient(135deg,#f25623,#c43d10)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px',
-        }}>L</div>
+        {/* Logo mark — links to home */}
+        <Link href="/" style={{ textDecoration: 'none' }} title="Home">
+          <div style={{
+            width: '30px', height: '30px', borderRadius: '7px',
+            background: 'linear-gradient(135deg,#f25623,#c43d10)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px',
+            cursor: 'pointer',
+          }}>L</div>
+        </Link>
 
         {/* Dashboard — active */}
         <div style={{
@@ -155,13 +158,15 @@ export default function DashboardPage() {
 
         <div style={{ flex: 1 }} />
 
-        {/* Avatar */}
-        <div style={{
-          width: '28px', height: '28px', borderRadius: '50%',
-          background: 'rgba(242,86,35,0.2)', border: '1px solid rgba(242,86,35,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '10px', fontWeight: 600, color: '#f25623',
-        }}>{initials}</div>
+        {/* Avatar — links to settings */}
+        <Link href="/dashboard/settings" style={{ textDecoration: 'none' }} title="Account settings">
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%',
+            background: 'rgba(242,86,35,0.2)', border: '1px solid rgba(242,86,35,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '10px', fontWeight: 600, color: '#f25623', cursor: 'pointer',
+          }}>{initials}</div>
+        </Link>
       </div>
 
       {/* ── Main content ── */}
@@ -268,7 +273,7 @@ export default function DashboardPage() {
               {isBasicOrBelow && (
                 <span style={{
                   fontSize: '10px', padding: '2px 6px', borderRadius: '4px',
-                  background: 'rgba(59,130,246,0.12)', color: 'rgba(147,197,253,0.8)',
+                  background: 'rgba(59,130,246,0.15)', color: '#3b82f6',
                   marginLeft: 'auto',
                 }}>Pro</span>
               )}
