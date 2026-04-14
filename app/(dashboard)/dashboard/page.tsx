@@ -82,14 +82,15 @@ export default function DashboardPage() {
     )
   }
 
-  const quoteCap = QUOTE_CAP[user.tier] ?? 3
+  const tier = user.tier ?? 'free'
+  const quoteCap = QUOTE_CAP[tier] ?? 3
   const quotesUsed = user.quotes_used_this_month ?? 0
-  const isFree = user.tier === 'free'
-  const isBasicOrBelow = user.tier === 'free' || user.tier === 'basic'
+  const isFree = tier === 'free'
+  const isBasicOrBelow = tier === 'free' || tier === 'basic'
   const greeting = getGreeting()
   const dateStr = getDateString()
   const initials = getInitials(user.name || 'U')
-  const tierLabel = user.tier.charAt(0).toUpperCase() + user.tier.slice(1)
+  const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1)
   const quotaFillPct = isFree ? Math.min((quotesUsed / quoteCap) * 100, 100) : 0
   const quotesRemaining = isFree ? Math.max(quoteCap - quotesUsed, 0) : null
 
