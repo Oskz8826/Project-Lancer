@@ -70,7 +70,7 @@ const FEATURES: FeatureRow[] = [
 ]
 
 function Cell({ value }: { value: string | boolean }) {
-  if (value === true)  return <span style={{ color: '#F25623', fontSize: '1.1rem' }}>✓</span>
+  if (value === true)  return <span style={{ color: '#22c55e', fontSize: '1.1rem' }}>✓</span>
   if (value === false) return <span style={{ color: 'rgba(255,255,255,0.18)' }}>—</span>
   return <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.82rem' }}>{value}</span>
 }
@@ -79,6 +79,8 @@ export default function PricingPage() {
   const [billing, setBilling] = useState<Billing>('monthly')
   const [aiBasic, setAiBasic] = useState(false)
   const [aiPro,   setAiPro]   = useState(false)
+  const [selectedTier, setSelectedTier] = useState<string | null>(null)
+  const [hoveredTier,  setHoveredTier]  = useState<string | null>(null)
 
   function price(tier: 'basic' | 'pro' | 'max') {
     const base = billing === 'annual' ? ANNUAL[tier] : MONTHLY[tier]
@@ -105,14 +107,10 @@ export default function PricingPage() {
         background: 'rgba(13,13,18,0.85)', backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link href="/" style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>
-            Lancer
-          </Link>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <Link href="/" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>Home</Link>
-            <span style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>Pricing</span>
-          </div>
+        <Link href="/" style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>Lancer</Link>
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
+          <Link href="/" style={{ fontSize: '0.88rem', textDecoration: 'none', color: 'rgba(255,255,255,0.45)', fontWeight: 400 }}>Home</Link>
+          <span style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>Pricing</span>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <Link href="/login" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sign in</Link>
@@ -132,72 +130,205 @@ export default function PricingPage() {
         </p>
 
         {/* Billing toggle */}
-        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '4px', gap: '2px', marginBottom: '3rem' }}>
-          {(['monthly', 'annual'] as Billing[]).map(b => (
-            <button key={b} onClick={() => setBilling(b)} style={{
-              background: billing === b ? 'rgba(255,255,255,0.1)' : 'transparent',
-              border: billing === b ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
-              borderRadius: '7px', padding: '0.4rem 1.1rem',
-              color: billing === b ? '#fff' : 'rgba(255,255,255,0.45)',
-              fontSize: '0.88rem', fontWeight: billing === b ? 600 : 400,
-              cursor: 'pointer', transition: 'all 0.15s',
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-            }}>
-              {b.charAt(0).toUpperCase() + b.slice(1)}
-              {b === 'annual' && (
-                <span style={{ background: '#F25623', color: '#fff', fontSize: '0.68rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px' }}>–30%</span>
-              )}
-            </button>
-          ))}
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '3rem' }}>
+          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '4px', gap: '2px' }}>
+            {(['monthly', 'annual'] as Billing[]).map(b => (
+              <button key={b} onClick={() => setBilling(b)} style={{
+                background: billing === b ? 'rgba(255,255,255,0.1)' : 'transparent',
+                border: billing === b ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
+                borderRadius: '7px', padding: '0.4rem 1.1rem',
+                color: billing === b ? '#fff' : 'rgba(255,255,255,0.45)',
+                fontSize: '0.88rem', fontWeight: billing === b ? 600 : 400,
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}>
+                {b.charAt(0).toUpperCase() + b.slice(1)}
+              </button>
+            ))}
+          </div>
+          {billing === 'annual' && (
+            <span style={{
+              position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)',
+              marginLeft: '0.75rem', whiteSpace: 'nowrap',
+              background: 'rgba(34,197,94,0.15)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.35)',
+              fontSize: '0.78rem', fontWeight: 700, padding: '3px 9px', borderRadius: '10px',
+            }}>Save 2 months</span>
+          )}
         </div>
       </section>
 
       {/* ── PRICE ROW ── */}
-      <section style={{ padding: '0 1.5rem 1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr repeat(4, 1fr)', gap: '1rem', marginBottom: '0.5rem' }}>
-          <div />
+      <section style={{ padding: '0 1.5rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
+        <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', margin: '0 0 1rem', letterSpacing: '0.02em', textAlign: 'center' }}>
+          {selectedTier ? 'Ready to go — hit Get started below.' : 'Select a plan to get started.'}
+        </p>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', textAlign: 'left' }}>
+
           {/* Free */}
-          <div style={{ textAlign: 'center', padding: '1.2rem 0.8rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px' }}>
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Free</p>
-            <p style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.8rem' }}>€0</p>
-            <Link href="/onboarding" className="btn-ghost" style={{ textDecoration: 'none', display: 'block', fontSize: '0.82rem', padding: '0.4rem 0.6rem' }}>Get started</Link>
+          <div
+            onClick={() => setSelectedTier(selectedTier === 'free' ? null : 'free')}
+            onMouseEnter={() => setHoveredTier('free')}
+            onMouseLeave={() => setHoveredTier(null)}
+            style={{
+              background: selectedTier === 'free' ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
+              border: selectedTier === 'free' ? '1px solid rgba(255,255,255,0.6)' : hoveredTier === 'free' ? '1px solid rgba(255,255,255,0.22)' : '1px solid rgba(255,255,255,0.08)',
+              boxShadow: hoveredTier === 'free' && selectedTier !== 'free' ? '0 0 0 2px rgba(255,255,255,0.07)' : 'none',
+              borderRadius: '14px', padding: '1.6rem 1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem',
+              flex: 1, minWidth: '200px', position: 'relative', cursor: 'pointer',
+              transition: 'border 0.15s, box-shadow 0.15s, background 0.15s',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Free</p>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.45)', lineHeight: 1.4 }}>Starter</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                <span style={{ fontSize: '2rem', fontWeight: 800 }}>€0</span>
+              </div>
+            </div>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1 }}>
+              {['3 quotes / month', 'Quote builder', 'Regional benchmarks', 'Multi-currency'].map(f => (
+                <li key={f} style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span style={{ color: '#F25623', flexShrink: 0 }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            {selectedTier === 'free' && (
+              <Link href="/onboarding" onClick={e => e.stopPropagation()} className="btn-ghost" style={{ textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: '0.88rem' }}>Get started</Link>
+            )}
           </div>
+
           {/* Basic */}
-          <div style={{ textAlign: 'center', padding: '1.2rem 0.8rem', background: 'rgba(242,86,35,0.06)', border: '1px solid #F25623', borderRadius: '12px', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#F25623', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', whiteSpace: 'nowrap' }}>POPULAR</div>
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', margin: '0 0 0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Basic</p>
+          <div
+            onClick={() => setSelectedTier(selectedTier === 'basic' ? null : 'basic')}
+            onMouseEnter={() => setHoveredTier('basic')}
+            onMouseLeave={() => setHoveredTier(null)}
+            style={{
+              background: selectedTier === 'basic' ? 'rgba(242,86,35,0.10)' : 'rgba(242,86,35,0.06)',
+              border: selectedTier === 'basic' ? '1px solid rgba(255,255,255,0.6)' : hoveredTier === 'basic' ? '1px solid rgba(242,86,35,0.85)' : '1px solid #F25623',
+              boxShadow: hoveredTier === 'basic' && selectedTier !== 'basic' ? '0 0 0 2px rgba(242,86,35,0.18)' : 'none',
+              borderRadius: '14px', padding: '1.6rem 1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem',
+              flex: 1, minWidth: '200px', position: 'relative', cursor: 'pointer',
+              transition: 'border 0.15s, box-shadow 0.15s, background 0.15s',
+            }}
+          >
+            <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#F25623', color: '#fff', fontSize: '0.68rem', fontWeight: 700, padding: '2px 10px', borderRadius: '20px', whiteSpace: 'nowrap' }}>MOST POPULAR</div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Basic</p>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', color: '#22c55e', background: 'rgba(34,197,94,0.15)', border: '1px solid #22c55e', lineHeight: 1.4 }}>Freelancer</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                <span style={{ fontSize: '2rem', fontWeight: 800 }}>{price('basic')}</span>
+                <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)' }}>/mo</span>
+              </div>
+              {billing === 'annual' && <p style={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.28)', margin: '0.2rem 0 0' }}>{annualLabel('basic')}</p>}
+            </div>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1 }}>
+              {['15 quotes / month', 'Quote history', 'PDF export', 'Role-suggested hours'].map(f => (
+                <li key={f} style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span style={{ color: '#F25623', flexShrink: 0 }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
             <div
-              onClick={() => setAiBasic(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'center', cursor: 'pointer', marginBottom: '0.3rem' }}
+              onClick={(e) => { e.stopPropagation(); setAiBasic(v => !v) }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.55rem 0.8rem', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Checkbox checked={aiBasic} onChange={setAiBasic} />
-              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)' }}>+AI €6/mo</span>
+              <span style={{ fontSize: '0.79rem', color: 'rgba(255,255,255,0.6)', flex: 1 }}>AI quoting assist <span style={{ color: 'rgba(255,255,255,0.3)' }}>(Claude Haiku 4.5)</span></span>
+              <span style={{ fontSize: '0.79rem', color: '#F25623', fontWeight: 600, flexShrink: 0 }}>+€6/mo</span>
             </div>
-            <p style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.25rem' }}>{price('basic')}</p>
-            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.28)', margin: '0 0 0.8rem' }}>{billing === 'annual' ? annualLabel('basic') : '/month'}</p>
-            <Link href="/onboarding" className="btn-accent" style={{ textDecoration: 'none', display: 'block', fontSize: '0.82rem', padding: '0.4rem 0.6rem' }}>Get started</Link>
+            {selectedTier === 'basic' && (
+              <Link href="/onboarding" onClick={e => e.stopPropagation()} className="btn-accent" style={{ textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: '0.88rem' }}>Get started</Link>
+            )}
           </div>
+
           {/* Pro */}
-          <div style={{ textAlign: 'center', padding: '1.2rem 0.8rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px' }}>
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', margin: '0 0 0.3rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Pro</p>
+          <div
+            onClick={() => setSelectedTier(selectedTier === 'pro' ? null : 'pro')}
+            onMouseEnter={() => setHoveredTier('pro')}
+            onMouseLeave={() => setHoveredTier(null)}
+            style={{
+              background: selectedTier === 'pro' ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
+              border: selectedTier === 'pro' ? '1px solid rgba(255,255,255,0.6)' : hoveredTier === 'pro' ? '1px solid rgba(255,255,255,0.22)' : '1px solid rgba(255,255,255,0.08)',
+              boxShadow: hoveredTier === 'pro' && selectedTier !== 'pro' ? '0 0 0 2px rgba(255,255,255,0.07)' : 'none',
+              borderRadius: '14px', padding: '1.6rem 1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem',
+              flex: 1, minWidth: '200px', position: 'relative', cursor: 'pointer',
+              transition: 'border 0.15s, box-shadow 0.15s, background 0.15s',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Pro</p>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', color: '#3b82f6', background: 'rgba(59,130,246,0.15)', border: '1px solid #3b82f6', lineHeight: 1.4 }}>Studio</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                <span style={{ fontSize: '2rem', fontWeight: 800 }}>{price('pro')}</span>
+                <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)' }}>/mo</span>
+              </div>
+              {billing === 'annual' && <p style={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.28)', margin: '0.2rem 0 0' }}>{annualLabel('pro')}</p>}
+            </div>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1 }}>
+              {['20 quotes / month', 'Budget estimator', 'CSV export', 'Everything in Basic'].map(f => (
+                <li key={f} style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span style={{ color: '#F25623', flexShrink: 0 }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
             <div
-              onClick={() => setAiPro(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'center', cursor: 'pointer', marginBottom: '0.3rem' }}
+              onClick={(e) => { e.stopPropagation(); setAiPro(v => !v) }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.55rem 0.8rem', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Checkbox checked={aiPro} onChange={setAiPro} />
-              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)' }}>+AI €10/mo</span>
+              <span style={{ fontSize: '0.79rem', color: 'rgba(255,255,255,0.6)', flex: 1 }}>AI budget analysis <span style={{ color: 'rgba(255,255,255,0.3)' }}>(Claude Sonnet 4.6)</span></span>
+              <span style={{ fontSize: '0.79rem', color: '#F25623', fontWeight: 600, flexShrink: 0 }}>+€10/mo</span>
             </div>
-            <p style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.25rem' }}>{price('pro')}</p>
-            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.28)', margin: '0 0 0.8rem' }}>{billing === 'annual' ? annualLabel('pro') : '/month'}</p>
-            <Link href="/onboarding" className="btn-ghost" style={{ textDecoration: 'none', display: 'block', fontSize: '0.82rem', padding: '0.4rem 0.6rem' }}>Get started</Link>
+            {selectedTier === 'pro' && (
+              <Link href="/onboarding" onClick={e => e.stopPropagation()} className="btn-ghost" style={{ textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: '0.88rem' }}>Get started</Link>
+            )}
           </div>
+
           {/* Max */}
-          <div style={{ textAlign: 'center', padding: '1.2rem 0.8rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px' }}>
-            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Max</p>
-            <p style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.25rem' }}>{price('max')}</p>
-            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.28)', margin: '0 0 0.8rem' }}>{billing === 'annual' ? annualLabel('max') : '/month'}</p>
-            <Link href="/onboarding" className="btn-ghost" style={{ textDecoration: 'none', display: 'block', fontSize: '0.82rem', padding: '0.4rem 0.6rem' }}>Get started</Link>
+          <div
+            onClick={() => setSelectedTier(selectedTier === 'max' ? null : 'max')}
+            onMouseEnter={() => setHoveredTier('max')}
+            onMouseLeave={() => setHoveredTier(null)}
+            style={{
+              background: selectedTier === 'max' ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
+              border: selectedTier === 'max' ? '1px solid rgba(255,255,255,0.6)' : hoveredTier === 'max' ? '1px solid rgba(255,255,255,0.22)' : '1px solid rgba(255,255,255,0.08)',
+              boxShadow: hoveredTier === 'max' && selectedTier !== 'max' ? '0 0 0 2px rgba(255,255,255,0.07)' : 'none',
+              borderRadius: '14px', padding: '1.6rem 1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem',
+              flex: 1, minWidth: '200px', position: 'relative', cursor: 'pointer',
+              transition: 'border 0.15s, box-shadow 0.15s, background 0.15s',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Max</p>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', color: '#F25623', background: 'rgba(242,86,35,0.15)', border: '1px solid #F25623', lineHeight: 1.4 }}>Full Power</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                <span style={{ fontSize: '2rem', fontWeight: 800 }}>{price('max')}</span>
+                <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)' }}>/mo</span>
+              </div>
+              {billing === 'annual' && <p style={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.28)', margin: '0.2rem 0 0' }}>{annualLabel('max')}</p>}
+            </div>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1 }}>
+              {['100 quotes / month', 'Claude Opus 4.6 included', '100 AI requests/mo', 'Everything in Pro'].map(f => (
+                <li key={f} style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <span style={{ color: '#F25623', flexShrink: 0 }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '0.55rem 0.8rem', border: '1px solid rgba(255,255,255,0.07)', fontSize: '0.79rem', color: 'rgba(255,255,255,0.4)' }}>
+              Claude Opus 4.6 included
+            </div>
+            {selectedTier === 'max' && (
+              <Link href="/onboarding" onClick={e => e.stopPropagation()} className="btn-ghost" style={{ textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: '0.88rem' }}>Get started</Link>
+            )}
           </div>
+
         </div>
       </section>
 

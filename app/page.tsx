@@ -30,6 +30,13 @@ const MONTHLY = { basic: 7, pro: 15, max: 38 }
 const ANNUAL  = { basic: 4.90, pro: 10.50, max: 26.60 }
 const AI_ADDON = { basic: 6, pro: 10 }
 
+const AUDIENCE: Record<string, { label: string; color: string; bg: string }> = {
+  free:  { label: 'Starter',    color: 'rgba(255,255,255,0.45)', bg: 'rgba(255,255,255,0.07)' },
+  basic: { label: 'Freelancer', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
+  pro:   { label: 'Studio',     color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
+  max:   { label: 'Full Power', color: '#F25623', bg: 'rgba(242,86,35,0.15)' },
+}
+
 const TIERS = [
   {
     id: 'free' as const,
@@ -93,6 +100,8 @@ export default function LandingPage() {
   const [aiBasic, setAiBasic] = useState(false)
   const [aiPro,   setAiPro]   = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [selectedTier, setSelectedTier] = useState<string | null>(null)
+  const [hoveredTier,  setHoveredTier]  = useState<string | null>(null)
 
   function getPrice(tier: typeof TIERS[number]) {
     if (tier.monthlyBase === 0) return '€0'
@@ -113,9 +122,10 @@ export default function LandingPage() {
         background: 'rgba(13,13,18,0.85)', backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link href="/" style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>Lancer</Link>
-          <Link href="/pricing" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>Pricing</Link>
+        <Link href="/" style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>Lancer</Link>
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>Home</span>
+          <Link href="/pricing" style={{ fontSize: '0.88rem', textDecoration: 'none', color: 'rgba(255,255,255,0.45)', fontWeight: 400 }}>Pricing</Link>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <Link href="/login" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sign in</Link>
@@ -156,7 +166,7 @@ export default function LandingPage() {
             See pricing
           </Link>
         </div>
-        <p style={{ marginTop: '1.2rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.22)' }}>
+        <p style={{ marginTop: '1.2rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)' }}>
           Free forever. No credit card required.
         </p>
       </section>
@@ -192,26 +202,35 @@ export default function LandingPage() {
         </p>
 
         {/* Billing toggle */}
-        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '4px', gap: '2px', marginBottom: '2.5rem' }}>
-          {(['monthly', 'annual'] as Billing[]).map(b => (
-            <button key={b} onClick={() => setBilling(b)} style={{
-              background: billing === b ? 'rgba(255,255,255,0.1)' : 'transparent',
-              border: billing === b ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
-              borderRadius: '7px', padding: '0.4rem 1.1rem',
-              color: billing === b ? '#fff' : 'rgba(255,255,255,0.45)',
-              fontSize: '0.88rem', fontWeight: billing === b ? 600 : 400,
-              cursor: 'pointer', transition: 'all 0.15s',
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-            }}>
-              {b.charAt(0).toUpperCase() + b.slice(1)}
-              {b === 'annual' && (
-                <span style={{ background: '#F25623', color: '#fff', fontSize: '0.68rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px' }}>–30%</span>
-              )}
-            </button>
-          ))}
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '4px', gap: '2px' }}>
+            {(['monthly', 'annual'] as Billing[]).map(b => (
+              <button key={b} onClick={() => setBilling(b)} style={{
+                background: billing === b ? 'rgba(255,255,255,0.1)' : 'transparent',
+                border: billing === b ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
+                borderRadius: '7px', padding: '0.4rem 1.1rem',
+                color: billing === b ? '#fff' : 'rgba(255,255,255,0.45)',
+                fontSize: '0.88rem', fontWeight: billing === b ? 600 : 400,
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}>
+                {b.charAt(0).toUpperCase() + b.slice(1)}
+              </button>
+            ))}
+          </div>
+          {billing === 'annual' && (
+            <span style={{
+              position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)',
+              marginLeft: '0.75rem', whiteSpace: 'nowrap',
+              background: 'rgba(34,197,94,0.15)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.35)',
+              fontSize: '0.78rem', fontWeight: 700, padding: '3px 9px', borderRadius: '10px',
+            }}>Save 2 months</span>
+          )}
         </div>
 
         {/* Tier cards */}
+        <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', margin: '0 0 1rem', letterSpacing: '0.02em' }}>
+          {selectedTier ? 'Ready to go — hit Get started below.' : 'Select a plan to get started.'}
+        </p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', textAlign: 'left' }}>
           {TIERS.map(tier => {
             const annualBase = tier.id === 'basic' ? 59 : tier.id === 'pro' ? 126 : tier.id === 'max' ? 319 : 0
@@ -220,13 +239,28 @@ export default function LandingPage() {
                            : 0
             const annualLabel = annualBase > 0 ? `€${annualBase + aiYearly}/year` : null
             return (
-            <div key={tier.id} style={{
-              background: tier.highlight ? 'rgba(242,86,35,0.06)' : 'rgba(255,255,255,0.04)',
-              border: tier.highlight ? '1px solid #F25623' : '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '14px', padding: '1.6rem 1.4rem',
-              display: 'flex', flexDirection: 'column', gap: '1rem',
-              flex: 1, minWidth: '200px', position: 'relative',
-            }}>
+            <div
+              key={tier.id}
+              onClick={() => setSelectedTier(tier.id === selectedTier ? null : tier.id)}
+              onMouseEnter={() => setHoveredTier(tier.id)}
+              onMouseLeave={() => setHoveredTier(null)}
+              style={{
+                background: tier.highlight ? 'rgba(242,86,35,0.06)' : selectedTier === tier.id ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
+                border: selectedTier === tier.id
+                  ? '1px solid rgba(255,255,255,0.6)'
+                  : hoveredTier === tier.id
+                    ? tier.highlight ? '1px solid rgba(242,86,35,0.85)' : '1px solid rgba(255,255,255,0.22)'
+                    : tier.highlight ? '1px solid #F25623' : '1px solid rgba(255,255,255,0.08)',
+                boxShadow: hoveredTier === tier.id && selectedTier !== tier.id
+                  ? tier.highlight ? '0 0 0 2px rgba(242,86,35,0.18)' : '0 0 0 2px rgba(255,255,255,0.07)'
+                  : 'none',
+                borderRadius: '14px', padding: '1.6rem 1.4rem',
+                display: 'flex', flexDirection: 'column', gap: '1rem',
+                flex: 1, minWidth: '200px', position: 'relative',
+                cursor: 'pointer',
+                transition: 'border 0.15s, box-shadow 0.15s, background 0.15s',
+              }}
+            >
               {tier.highlight && (
                 <div style={{
                   position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)',
@@ -235,8 +269,14 @@ export default function LandingPage() {
                 }}>MOST POPULAR</div>
               )}
               <div>
-                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', margin: '0 0 0.35rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{tier.name}</p>
-                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', margin: '0 0 0.6rem' }}>{tier.desc}</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{tier.name}</p>
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px',
+                    color: AUDIENCE[tier.id].color, background: AUDIENCE[tier.id].bg,
+                    border: `1px solid ${AUDIENCE[tier.id].color}`, lineHeight: 1.4,
+                  }}>{AUDIENCE[tier.id].label}</span>
+                </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
                   <span style={{ fontSize: '2rem', fontWeight: 800 }}>{getPrice(tier)}</span>
                   {tier.monthlyBase > 0 && <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)' }}>/mo</span>}
@@ -256,7 +296,7 @@ export default function LandingPage() {
 
               {tier.aiAddon && (
                 <div
-                  onClick={() => tier.id === 'basic' ? setAiBasic(!aiBasic) : setAiPro(!aiPro)}
+                  onClick={(e) => { e.stopPropagation(); tier.id === 'basic' ? setAiBasic(!aiBasic) : setAiPro(!aiPro) }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.55rem',
                     background: 'rgba(255,255,255,0.05)', borderRadius: '8px',
@@ -283,13 +323,16 @@ export default function LandingPage() {
                 </div>
               )}
 
-              <Link
-                href="/onboarding"
-                className={tier.highlight ? 'btn-accent' : 'btn-ghost'}
-                style={{ textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: '0.88rem' }}
-              >
-                {tier.cta}
-              </Link>
+              {selectedTier === tier.id && (
+                <Link
+                  href="/onboarding"
+                  onClick={(e) => e.stopPropagation()}
+                  className={tier.highlight ? 'btn-accent' : 'btn-ghost'}
+                  style={{ textDecoration: 'none', textAlign: 'center', display: 'block', fontSize: '0.88rem' }}
+                >
+                  {tier.cta}
+                </Link>
+              )}
             </div>
             )
           })}
