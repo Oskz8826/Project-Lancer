@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
     "@hookform/resolvers": "^5.2.2",
+    "jspdf": "^4.2.1",
     "next": "16.2.3",
     "pocketbase": "^0.26.8",
     "react": "19.2.4",

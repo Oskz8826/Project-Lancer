@@ -11,15 +11,13 @@ export function useAuth() {
   const router = useRouter()
 
   useEffect(() => {
-    const model = pb.authStore.model
-    if (pb.authStore.isValid && model) {
-      setUser(model as unknown as UserProfile)
-    }
-    setLoading(false)
-
+    // fireImmediately=true ensures the callback fires synchronously with the
+    // current auth state, avoiding a race between PocketBase localStorage
+    // restore and the effect running.
     const unsub = pb.authStore.onChange((_, model) => {
       setUser(model ? (model as unknown as UserProfile) : null)
-    })
+      setLoading(false)
+    }, true)
 
     return () => unsub()
   }, [])
@@ -29,5 +27,13 @@ export function useAuth() {
     router.push('/')
   }
 
-  return { user, loading, logout }
+  async function refreshUser() {
+    if (!pb.authStore.isValid || !pb.authStore.model) return
+    try {
+      await pb.collection('users').authRefresh()
+      // authRefresh atomically updates token + model in authStore → onChange fires → setUser updates
+    } catch { /* ignore */ }
+  }
+
+  return { user, loading, logout, refreshUser }
 }

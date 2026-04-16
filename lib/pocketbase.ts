@@ -17,7 +17,7 @@ export function getPocketBase(): PocketBase {
     // Sync auth to cookie so the middleware can read it server-side
     clientInstance.authStore.onChange(() => {
       if (clientInstance!.authStore.isValid) {
-        document.cookie = `pb_auth=${JSON.stringify({ token: clientInstance!.authStore.token })}; path=/; max-age=604800; SameSite=Lax`
+        document.cookie = `pb_auth=${JSON.stringify({ token: clientInstance!.authStore.token, model: clientInstance!.authStore.model })}; path=/; max-age=604800; SameSite=Lax`
       } else {
         document.cookie = 'pb_auth=; path=/; max-age=0; SameSite=Lax'
       }
