@@ -18,6 +18,45 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   completed: { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc',               border: 'rgba(168,85,247,0.25)', label: 'Completed' },
 }
 
+const PROGRESS_STAGES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'completed']
+const PROGRESS_INDEX: Record<QuoteStatus, number> = {
+  draft: 0, ready: 1, sent: 2, accepted: 3, completed: 4, rejected: 2,
+}
+const STAGE_COLORS: Record<QuoteStatus, string> = {
+  draft: 'rgba(255,255,255,0.4)', ready: '#f78560', sent: '#60a5fa',
+  accepted: '#4ade80', completed: '#c084fc', rejected: '#f87171',
+}
+
+function StatusBar({ status }: { status: QuoteStatus }) {
+  const currentIdx = PROGRESS_INDEX[status]
+  const isRejected = status === 'rejected'
+  return (
+    <div style={{ display: 'flex', gap: '3px', marginBottom: '7px', width: '25%' }}>
+      {PROGRESS_STAGES.map((stage, i) => {
+        const filled = i <= currentIdx
+        const isCurrent = i === currentIdx
+        const isNext = i === currentIdx + 1
+        const color = isRejected
+          ? '#f87171'
+          : filled
+            ? STAGE_COLORS[status]
+            : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
+        return (
+          <div
+            key={stage}
+            title={STATUS_COLORS[stage].label}
+            style={{
+              flex: 1, height: '3px', borderRadius: '2px',
+              background: color,
+              transition: 'background 0.2s',
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
 
 function fmtAmount(eur: number | undefined | null, currency: string) {
@@ -65,7 +104,7 @@ export default function DashboardPage() {
     if (!user) return
     const pb = getPocketBase()
     pb.collection('quotes')
-      .getList(1, 5, { filter: `user = "${user.id}"`, sort: '-created' })
+      .getList(1, 100, { filter: `user = "${user.id}"`, sort: '-created' })
       .then(res => { setQuotes(res.items); setQuotesReady(true) })
       .catch(() => setQuotesReady(true))
   }, [user?.id])
@@ -83,6 +122,10 @@ export default function DashboardPage() {
       </div>
     )
   }
+
+  const draftQuotes  = quotes.filter(q => q.status === 'draft')
+  const savedQuotes  = quotes.filter(q => q.status !== 'draft')
+  const recentQuotes = quotes.slice(0, 5)
 
   const tier = user.tier ?? 'free'
   const quoteCap = QUOTE_CAP[tier] ?? 3
@@ -165,10 +208,14 @@ export default function DashboardPage() {
             }}>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginBottom: '5px' }}>Saved quotes</div>
               <div style={{ fontSize: '22px', fontWeight: 500, color: '#fff' }}>
-                {quotesReady ? quotes.length : '—'}
+                {quotesReady ? savedQuotes.length : '—'}
               </div>
               <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', marginTop: '3px' }}>
-                {quotes.length === 0 ? 'No saved quotes yet' : `${quotes.length} quote${quotes.length !== 1 ? 's' : ''} saved`}
+                {!quotesReady || quotes.length === 0
+                  ? 'No saved quotes yet'
+                  : draftQuotes.length > 0
+                    ? `+ ${draftQuotes.length} draft${draftQuotes.length !== 1 ? 's' : ''}`
+                    : `${savedQuotes.length} quote${savedQuotes.length !== 1 ? 's' : ''} saved`}
               </div>
             </div>
 
@@ -179,12 +226,12 @@ export default function DashboardPage() {
             }}>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginBottom: '5px' }}>Avg quote value</div>
               <div style={{ fontSize: '22px', fontWeight: 500, color: '#fff' }}>
-                {quotes.length > 0
-                  ? fmtAmount(quotes.reduce((s, q) => s + (q.quote_mid ?? 0), 0) / quotes.length, quotes[0]?.working_currency || 'EUR')
+                {savedQuotes.length > 0
+                  ? fmtAmount(savedQuotes.reduce((s, q) => s + (q.quote_mid ?? 0), 0) / savedQuotes.length, savedQuotes[0]?.working_currency || 'EUR')
                   : '—'}
               </div>
               <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', marginTop: '3px' }}>
-                {quotes.length > 0 ? 'across all saved quotes' : 'No quotes yet'}
+                {savedQuotes.length > 0 ? 'across all saved quotes' : 'No quotes yet'}
               </div>
             </div>
           </div>
@@ -239,7 +286,7 @@ export default function DashboardPage() {
                 border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#F25623',
               }} />
             </div>
-          ) : quotes.length === 0 ? (
+          ) : recentQuotes.length === 0 ? (
             <div style={{
               background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)',
               backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
@@ -261,35 +308,45 @@ export default function DashboardPage() {
               backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
               borderRadius: '10px', overflow: 'hidden',
             }}>
-              {quotes.map((q, i) => {
+              {recentQuotes.map((q, i) => {
                 const disciplineLabel = DISCIPLINES.find(d => d.value === q.discipline)?.label ?? q.discipline
                 const cur = q.working_currency || 'EUR'
                 const qStatus = (q.status || 'draft') as QuoteStatus
                 const sc = STATUS_COLORS[qStatus]
                 return (
-                  <div key={q.id} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '10px 14px',
-                    borderBottom: i < quotes.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 500,
-                        background: sc.bg, color: sc.text, border: `0.5px solid ${sc.border}`,
-                        flexShrink: 0,
-                      }}>{sc.label}</span>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {disciplineLabel} · {q.asset_type}
+                  <div
+                    key={q.id}
+                    onClick={() => router.push(`/dashboard/quotes?open=${q.id}`)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 14px', cursor: 'pointer',
+                      borderBottom: i < recentQuotes.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div style={{ width: '100%', minWidth: 0 }}>
+                      <StatusBar status={qStatus} />
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {q.project_name || `${disciplineLabel} · ${q.asset_type}`}
+                          </div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ color: sc.text, fontWeight: 500 }}>{sc.label}</span>
+                            <span>·</span>
+                            {q.project_name && <><span>{disciplineLabel}</span><span>·</span></>}
+                            <span>{q.complexity_tier}</span>
+                            <span>·</span>
+                            <span>{fmtDate(q.created)}</span>
+                            {q.ai_assisted && <span style={{ color: '#f78560' }}>AI</span>}
+                          </div>
                         </div>
-                        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginTop: '2px' }}>
-                          {q.complexity_tier} · {fmtDate(q.created)}
-                          {q.ai_assisted && <span style={{ color: '#f78560', marginLeft: '6px' }}>AI</span>}
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#f78560', textAlign: 'right', flexShrink: 0 }}>
+                          {fmtAmount(q.quote_min, cur)} – {fmtAmount(q.quote_max, cur)}
                         </div>
                       </div>
-                    </div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#f78560', textAlign: 'right', flexShrink: 0, marginLeft: '12px' }}>
-                      {fmtAmount(q.quote_min, cur)} – {fmtAmount(q.quote_max, cur)}
                     </div>
                   </div>
                 )

@@ -25,11 +25,12 @@ export default function Step4Extras({ workingCurrency, currencySymbol }: {
 }) {
   const { data, next, back } = useQuote()
 
-  const [revRounds,  setRevRounds]  = useState(data.revision_rounds ?? 2)
-  const [revType,    setRevType]    = useState<RevisionType>(data.revision_type ?? 'Standard')
-  const [usage,      setUsage]      = useState<UsageRights>(data.usage_rights ?? 'Indie')
-  const [rush,       setRush]       = useState(data.rush_job ?? false)
-  const [notes,      setNotes]      = useState(data.notes ?? '')
+  const [revRounds,   setRevRounds]   = useState(data.revision_rounds ?? 2)
+  const [revType,     setRevType]     = useState<RevisionType>(data.revision_type ?? 'Standard')
+  const [usage,       setUsage]       = useState<UsageRights>(data.usage_rights ?? 'Indie')
+  const [rush,        setRush]        = useState(data.rush_job ?? false)
+  const [clientName,  setClientName]  = useState(data.client_name ?? '')
+  const [notes,       setNotes]       = useState(data.notes ?? '')
 
   const preview = calculateQuote({
     hours_min: data.hours_min ?? 0,
@@ -42,7 +43,7 @@ export default function Step4Extras({ workingCurrency, currencySymbol }: {
   })
 
   function handleNext() {
-    next({ revision_rounds: revRounds, revision_type: revType, usage_rights: usage, rush_job: rush, notes })
+    next({ revision_rounds: revRounds, revision_type: revType, usage_rights: usage, rush_job: rush, client_name: clientName, notes })
   }
 
   return (
@@ -159,6 +160,22 @@ export default function Step4Extras({ workingCurrency, currencySymbol }: {
             )
           })}
         </div>
+      </div>
+
+      {/* Client name */}
+      <div>
+        <div className="label" style={{ marginBottom: '8px' }}>Client name (optional)</div>
+        <input
+          type="text"
+          value={clientName}
+          onChange={e => setClientName(e.target.value)}
+          placeholder="Studio or client name..."
+          style={{
+            width: '100%', padding: '10px 12px', borderRadius: '8px', boxSizing: 'border-box',
+            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+            fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontFamily: 'inherit', outline: 'none',
+          }}
+        />
       </div>
 
       {/* Notes */}

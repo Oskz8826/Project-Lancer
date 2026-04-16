@@ -58,6 +58,8 @@ export interface QuoteData {
   revision_type: RevisionType
   usage_rights: UsageRights
   rush_job: boolean
+  project_name: string
+  client_name: string
   notes: string
   client_brief: string
   // Step 5 (computed on save)

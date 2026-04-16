@@ -68,8 +68,11 @@ function BuilderPanelInner({
         revision_type:    data.revision_type || 'Standard',
         usage_rights:     data.usage_rights || 'Indie',
         rush_job:         data.rush_job || false,
+        project_name:     data.project_name || '',
+        client_name:      data.client_name || '',
         notes:            data.notes || '',
         client_brief:     data.client_brief || '',
+        freelancer_name:  user.name || '',
         working_currency: workingCurrency,
         ai_assisted:      data.ai_assisted || false,
         status:           'draft',
@@ -142,10 +145,17 @@ function BuilderPanelInner({
           <button
             onClick={handleCloseClick}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'rgba(255,255,255,0.35)', fontSize: '18px', lineHeight: 1, padding: '2px 4px',
+              background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+              cursor: 'pointer', color: 'rgba(239,68,68,0.8)',
+              width: '28px', height: '28px', borderRadius: '7px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              padding: 0,
             }}
-          >×</button>
+          >
+            <svg width="9" height="9" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
 
         {/* Step content */}
@@ -262,6 +272,7 @@ export default function BuilderPanel({
 
   // Build initialData from existing draft record
   const initialData: Partial<QuoteData> | undefined = quote ? {
+    project_name:     quote.project_name,
     discipline:       quote.discipline,
     asset_type:       quote.asset_type,
     complexity_tier:  quote.complexity_tier,
@@ -275,6 +286,7 @@ export default function BuilderPanel({
     revision_type:    quote.revision_type,
     usage_rights:     quote.usage_rights,
     rush_job:         quote.rush_job,
+    client_name:      quote.client_name,
     notes:            quote.notes,
     client_brief:     quote.client_brief,
     ai_assisted:      quote.ai_assisted,

@@ -94,7 +94,7 @@ export default function Step5Review({ user, onSaved, onRestart }: {
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
     doc.setTextColor(160, 160, 160)
-    doc.text('Quote Summary', margin, y + 7)
+    doc.text(data.project_name ? data.project_name : 'Quote Summary', margin, y + 7)
 
     const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     doc.text(dateStr, W - margin, y + 7, { align: 'right' })
@@ -103,7 +103,26 @@ export default function Step5Review({ user, onSaved, onRestart }: {
     doc.setDrawColor(60, 60, 70)
     doc.setLineWidth(0.3)
     doc.line(margin, y, W - margin, y)
-    y += 10
+    y += 8
+
+    // ── From / To ────────────────────────────────────────────────────────────
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    if (user.name) {
+      doc.setTextColor(100, 100, 110)
+      doc.text('From', margin, y)
+      doc.setTextColor(40, 40, 50)
+      doc.text(user.name, margin + 18, y)
+      y += 6
+    }
+    if (data.client_name) {
+      doc.setTextColor(100, 100, 110)
+      doc.text('To', margin, y)
+      doc.setTextColor(40, 40, 50)
+      doc.text(data.client_name, margin + 18, y)
+      y += 6
+    }
+    y += 6
 
     // ── Price hero ───────────────────────────────────────────────────────────
     doc.setFont('helvetica', 'bold')
@@ -223,6 +242,9 @@ export default function Step5Review({ user, onSaved, onRestart }: {
         revision_type:    data.revision_type,
         usage_rights:     data.usage_rights,
         rush_job:         data.rush_job,
+        project_name:     data.project_name || '',
+        client_name:      data.client_name || '',
+        freelancer_name:  user.name || '',
         notes:            data.notes,
         client_brief:     data.client_brief,
         quote_min:        calc.quote_min,

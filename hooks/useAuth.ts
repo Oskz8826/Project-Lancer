@@ -22,6 +22,21 @@ export function useAuth() {
     return () => unsub()
   }, [])
 
+  // Subscribe to real-time user record updates so quota and other fields
+  // refresh immediately without requiring a page reload.
+  useEffect(() => {
+    const userId = pb.authStore.model?.id
+    if (!userId) return
+
+    pb.collection('users').subscribe(userId, (e) => {
+      setUser(e.record as unknown as UserProfile)
+    }).catch(() => { /* SSE not available */ })
+
+    return () => {
+      pb.collection('users').unsubscribe(userId).catch(() => {})
+    }
+  }, [user?.id])
+
   async function logout() {
     pb.authStore.clear()
     router.push('/')

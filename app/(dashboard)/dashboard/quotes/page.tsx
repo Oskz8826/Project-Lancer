@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getPocketBase } from '@/lib/pocketbase'
 import { DISCIPLINES, CURRENCY_RATES } from '@/lib/constants'
@@ -21,6 +21,10 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
 
 const FILTERS = ['all', 'draft', 'ready', 'sent', 'accepted', 'rejected', 'completed'] as const
 
+const STAGE_ORDER: Record<QuoteStatus, number> = {
+  draft: 0, ready: 1, sent: 2, accepted: 3, completed: 4, rejected: 5,
+}
+
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
@@ -28,6 +32,7 @@ function fmtDate(iso: string) {
 export default function QuotesPage() {
   const { user, loading, refreshUser } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [quotes, setQuotes]             = useState<any[]>([])
   const [quotesReady, setQuotesReady]   = useState(false)
@@ -36,6 +41,8 @@ export default function QuotesPage() {
   const [isEditing, setIsEditing]       = useState(false)
   const [panelOpen, setPanelOpen]       = useState(false)
   const [panelKey, setPanelKey]         = useState(0)
+  const [sortBy, setSortBy]             = useState<'newest' | 'name' | 'stage'>('newest')
+  const [sortOpen, setSortOpen]         = useState(false)
 
   const fetchQuotes = useCallback((userId: string, filter: string) => {
     setQuotesReady(false)
@@ -49,6 +56,13 @@ export default function QuotesPage() {
       .catch(() => setQuotesReady(true))
   }, [])
 
+  const sortedQuotes = useMemo(() => {
+    const arr = [...quotes]
+    if (sortBy === 'name') return arr.sort((a, b) => (a.client_name ?? '').localeCompare(b.client_name ?? ''))
+    if (sortBy === 'stage') return arr.sort((a, b) => STAGE_ORDER[a.status as QuoteStatus] - STAGE_ORDER[b.status as QuoteStatus])
+    return arr // newest: already sorted by -created from PocketBase
+  }, [quotes, sortBy])
+
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login')
@@ -59,6 +73,16 @@ export default function QuotesPage() {
     if (!user) return
     fetchQuotes(user.id, activeFilter)
   }, [user?.id, activeFilter, fetchQuotes])
+
+  useEffect(() => {
+    if (!quotesReady) return
+    const openId = searchParams.get('open')
+    if (openId) {
+      setSelectedId(openId)
+      setIsEditing(false)
+      setPanelOpen(true)
+    }
+  }, [quotesReady, searchParams])
 
   if (loading || !user) {
     return (
@@ -118,7 +142,7 @@ export default function QuotesPage() {
           borderBottom: '0.5px solid rgba(255,255,255,0.06)',
           background: 'rgba(13,13,18,0.8)',
           backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-          flexShrink: 0,
+          flexShrink: 0, position: 'relative', zIndex: 20,
         }}>
           {/* Title */}
           <div style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.9)', flexShrink: 0 }}>
@@ -128,12 +152,12 @@ export default function QuotesPage() {
           {/* Filter tabs */}
           <div style={{ display: 'flex', gap: '3px', flex: 1, overflowX: 'auto' }}>
             {FILTERS.map(tab => {
-              const isActive = activeFilter === tab
+              const isActive = activeFilter === tab && sortBy !== 'stage'
               const colors   = tab !== 'all' ? STATUS_COLORS[tab as QuoteStatus] : null
               return (
                 <button
                   key={tab}
-                  onClick={() => setActiveFilter(tab)}
+                  onClick={() => { setActiveFilter(tab); if (sortBy === 'stage') setSortBy('newest') }}
                   style={{
                     padding: '4px 10px', borderRadius: '6px', fontSize: '11px',
                     border: isActive
@@ -153,6 +177,66 @@ export default function QuotesPage() {
                 </button>
               )
             })}
+            {/* Divider */}
+            <div style={{ width: '0.5px', background: 'rgba(255,255,255,0.1)', alignSelf: 'stretch', margin: '2px 4px', flexShrink: 0 }} />
+            {/* Stage sort tab */}
+            <button
+              onClick={() => setSortBy('stage')}
+              style={{
+                padding: '4px 10px', borderRadius: '6px', fontSize: '11px',
+                border: sortBy === 'stage' ? '0.5px solid rgba(255,255,255,0.2)' : '0.5px solid transparent',
+                background: sortBy === 'stage' ? 'rgba(255,255,255,0.07)' : 'none',
+                color: sortBy === 'stage' ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.3)',
+                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                fontWeight: sortBy === 'stage' ? 500 : 400,
+              }}
+            >Stage</button>
+          </div>
+
+          {/* Sort dropdown */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <button
+              onClick={() => setSortOpen(o => !o)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '5px',
+                background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.5)', fontSize: '11px', borderRadius: '6px',
+                padding: '4px 9px', cursor: 'pointer', outline: 'none',
+              }}
+            >
+              {sortBy === 'name' ? 'Name' : 'Newest'}
+              <span style={{ fontSize: '8px', opacity: 0.6 }}>▾</span>
+            </button>
+            {sortOpen && (
+              <>
+                {/* backdrop to close on outside click */}
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 49 }}
+                  onClick={() => setSortOpen(false)}
+                />
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 4px)', right: 0, zIndex: 50,
+                  background: '#16161e', border: '0.5px solid rgba(255,255,255,0.12)',
+                  borderRadius: '8px', overflow: 'hidden', minWidth: '100px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                }}>
+                  {(['newest', 'name'] as const).map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => { setSortBy(opt); setSortOpen(false) }}
+                      style={{
+                        display: 'block', width: '100%', textAlign: 'left',
+                        padding: '7px 12px', fontSize: '11px', cursor: 'pointer', border: 'none',
+                        background: sortBy === opt ? 'rgba(255,255,255,0.06)' : 'transparent',
+                        color: sortBy === opt ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)',
+                      }}
+                    >
+                      {opt === 'newest' ? 'Newest' : 'Name'}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* New quote button */}
@@ -188,7 +272,7 @@ export default function QuotesPage() {
                   border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#F25623',
                 }} />
               </div>
-            ) : quotes.length === 0 ? (
+            ) : sortedQuotes.length === 0 ? (
               <div style={{
                 background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)',
                 backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
@@ -216,14 +300,14 @@ export default function QuotesPage() {
                   fontSize: '10px', color: 'rgba(255,255,255,0.25)',
                   textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px',
                 }}>
-                  {quotes.length} quote{quotes.length !== 1 ? 's' : ''}
+                  {sortedQuotes.length} quote{sortedQuotes.length !== 1 ? 's' : ''}
                 </div>
                 <div style={{
                   background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.07)',
                   backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
                   borderRadius: '10px', overflow: 'hidden',
                 }}>
-                  {quotes.map((q, i) => {
+                  {sortedQuotes.map((q, i) => {
                     const disciplineLabel = DISCIPLINES.find(d => d.value === q.discipline)?.label ?? q.discipline
                     const qStatus         = (q.status || 'draft') as QuoteStatus
                     const sc              = STATUS_COLORS[qStatus]
@@ -236,35 +320,60 @@ export default function QuotesPage() {
                         style={{
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                           padding: '12px 14px', cursor: 'pointer',
-                          borderBottom: i < quotes.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
+                          borderBottom: i < sortedQuotes.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
                           background: isSelected ? 'rgba(255,255,255,0.04)' : 'transparent',
                           transition: 'background 0.15s',
                         }}
                         onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.02)' }}
                         onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                          {/* Status badge */}
-                          <span style={{
-                            padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 500,
-                            background: sc.bg, color: sc.text, border: `0.5px solid ${sc.border}`,
-                            flexShrink: 0,
-                          }}>
-                            {sc.label}
-                          </span>
-                          {/* Info */}
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {disciplineLabel} · {q.asset_type || '—'}
+                        <div style={{ width: '100%', minWidth: 0 }}>
+                          {/* Progress bar */}
+                          {(() => {
+                            const STAGES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'completed']
+                            const IDX: Record<QuoteStatus, number> = { draft: 0, ready: 1, sent: 2, accepted: 3, completed: 4, rejected: 2 }
+                            const CLRS: Record<QuoteStatus, string> = { draft: 'rgba(255,255,255,0.4)', ready: '#f78560', sent: '#60a5fa', accepted: '#4ade80', completed: '#c084fc', rejected: '#f87171' }
+                            const curIdx = IDX[qStatus]
+                            const isRej = qStatus === 'rejected'
+                            return (
+                              <div style={{ display: 'flex', gap: '3px', marginBottom: '7px', width: '25%' }}>
+                                {STAGES.map((s, i) => {
+                                  const filled = i <= curIdx
+                                  const isNext = i === curIdx + 1
+                                  const bg = isRej
+                                    ? '#f87171'
+                                    : filled
+                                      ? CLRS[qStatus]
+                                      : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
+                                  return <div key={s} style={{ flex: 1, height: '3px', borderRadius: '2px', background: bg }} />
+                                })}
+                              </div>
+                            )
+                          })()}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                              {/* Status badge */}
+                              <span style={{
+                                padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 500,
+                                background: sc.bg, color: sc.text, border: `0.5px solid ${sc.border}`,
+                                flexShrink: 0,
+                              }}>
+                                {sc.label}
+                              </span>
+                              {/* Info */}
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {q.project_name || `${disciplineLabel} · ${q.asset_type || '—'}`}
+                                </div>
+                                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginTop: '2px', display: 'flex', gap: '5px' }}>
+                                  {q.project_name && <><span>{disciplineLabel} · {q.asset_type || '—'}</span><span>·</span></>}
+                                  <span>{q.complexity_tier || '—'}</span>
+                                  <span>·</span>
+                                  <span>{fmtDate(q.created)}</span>
+                                  {q.ai_assisted && <span style={{ color: '#f78560' }}>AI</span>}
+                                </div>
+                              </div>
                             </div>
-                            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginTop: '2px', display: 'flex', gap: '5px' }}>
-                              <span>{q.complexity_tier || '—'}</span>
-                              <span>·</span>
-                              <span>{fmtDate(q.created)}</span>
-                              {q.ai_assisted && <span style={{ color: '#f78560' }}>AI</span>}
-                            </div>
-                          </div>
-                        </div>
                         {/* Price / draft indicator */}
                         <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '12px' }}>
                           {isDraft && !q.quote_min ? (
@@ -281,6 +390,8 @@ export default function QuotesPage() {
                               })() : '—'}
                             </div>
                           )}
+                        </div>
+                          </div>
                         </div>
                       </div>
                     )

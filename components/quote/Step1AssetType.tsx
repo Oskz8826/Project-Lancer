@@ -22,7 +22,8 @@ export default function Step1AssetType({ user }: { user: UserProfile }) {
   const [assetType, setAssetType]   = useState(
     data.asset_type || ASSET_TYPES[initialDiscipline]?.[0]?.label || ''
   )
-  const [complexity, setComplexity] = useState<ComplexityTier>(data.complexity_tier ?? 'Mid')
+  const [complexity, setComplexity]   = useState<ComplexityTier>(data.complexity_tier ?? 'Mid')
+  const [projectName, setProjectName] = useState(data.project_name ?? '')
 
   // Custom asset type
   const [customMode, setCustomMode]   = useState(false)
@@ -98,11 +99,24 @@ export default function Step1AssetType({ user }: { user: UserProfile }) {
 
   function handleNext() {
     if (!canContinue) return
-    next({ discipline, asset_type: assetType, complexity_tier: complexity, client_brief: brief })
+    next({ discipline, asset_type: assetType, complexity_tier: complexity, client_brief: brief, project_name: projectName })
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+      {/* Project name */}
+      <div>
+        <div className="label" style={{ marginBottom: '6px' }}>Project name <span style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 400 }}>(optional)</span></div>
+        <input
+          type="text"
+          value={projectName}
+          onChange={e => setProjectName(e.target.value)}
+          placeholder="e.g. Sci-fi Rifle Hero Asset"
+          className="input"
+          style={{ width: '100%' }}
+        />
+      </div>
 
       {/* AI Assist panel — Basic+ with addon */}
       {canUseAI && (

@@ -101,7 +101,7 @@ export default function QuoteOverview({
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
     doc.setTextColor(120, 120, 120)
-    doc.text('Quote Summary', margin, y + 7)
+    doc.text(quote.project_name || 'Quote Summary', margin, y + 7)
     const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     doc.text(dateStr, W - margin, y + 7, { align: 'right' })
 
@@ -109,7 +109,26 @@ export default function QuoteOverview({
     doc.setDrawColor(60, 60, 70)
     doc.setLineWidth(0.3)
     doc.line(margin, y, W - margin, y)
-    y += 12
+    y += 8
+
+    // From / To
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    if (quote.freelancer_name) {
+      doc.setTextColor(100, 100, 110)
+      doc.text('From', margin, y)
+      doc.setTextColor(40, 40, 50)
+      doc.text(quote.freelancer_name, margin + 18, y)
+      y += 6
+    }
+    if (quote.client_name) {
+      doc.setTextColor(100, 100, 110)
+      doc.text('To', margin, y)
+      doc.setTextColor(40, 40, 50)
+      doc.text(quote.client_name, margin + 18, y)
+      y += 6
+    }
+    if (quote.freelancer_name || quote.client_name) y += 4
 
     // Price hero
     doc.setFont('helvetica', 'bold')
@@ -213,16 +232,30 @@ export default function QuoteOverview({
         borderBottom: '0.5px solid rgba(255,255,255,0.07)',
         flexShrink: 0,
       }}>
-        <div style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>
-          Quote overview
+        <div>
+          <div style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>
+            {quote.project_name || 'Quote overview'}
+          </div>
+          {quote.project_name && (
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginTop: '2px' }}>
+              {disciplineLabel} · {quote.asset_type}
+            </div>
+          )}
         </div>
         <button
           onClick={onClose}
           style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'rgba(255,255,255,0.35)', fontSize: '18px', lineHeight: 1, padding: '2px 4px',
+            background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+            cursor: 'pointer', color: 'rgba(239,68,68,0.8)',
+            width: '28px', height: '28px', borderRadius: '7px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            padding: 0,
           }}
-        >×</button>
+        >
+          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+        </button>
       </div>
 
       {/* Scrollable body */}
@@ -250,6 +283,8 @@ export default function QuoteOverview({
           borderRadius: '10px', padding: '12px', marginBottom: '14px',
           display: 'flex', flexDirection: 'column', gap: '8px',
         }}>
+          {quote.project_name && <Row label="Project" value={quote.project_name} valueColor="rgba(255,255,255,0.85)" />}
+          {quote.client_name && <Row label="Client" value={quote.client_name} valueColor="#f78560" />}
           <Row label="Discipline" value={`${disciplineLabel} · ${quote.asset_type}`} />
           <Row label="Complexity" value={quote.complexity_tier} />
           <Row label="Experience" value={quote.experience_level} />
@@ -273,6 +308,29 @@ export default function QuoteOverview({
           {quote.rush_job && <Row label="Rush job" value="+25%" valueColor="#facc15" />}
           {quote.notes && <Row label="Notes" value={quote.notes} />}
         </div>
+
+        {/* Progress bar */}
+        {(() => {
+          const STAGES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'completed']
+          const IDX: Record<QuoteStatus, number> = { draft: 0, ready: 1, sent: 2, accepted: 3, completed: 4, rejected: 2 }
+          const CLRS: Record<QuoteStatus, string> = { draft: 'rgba(255,255,255,0.4)', ready: '#f78560', sent: '#60a5fa', accepted: '#4ade80', completed: '#c084fc', rejected: '#f87171' }
+          const curIdx = IDX[status]
+          const isRejected = status === 'rejected'
+          return (
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '14px' }}>
+              {STAGES.map((s, i) => {
+                const filled = i <= curIdx
+                const isNext = i === curIdx + 1
+                const bg = isRejected
+                  ? '#f87171'
+                  : filled
+                    ? CLRS[status]
+                    : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
+                return <div key={s} title={STATUS_COLORS[s].label} style={{ flex: 1, height: '3px', borderRadius: '2px', background: bg }} />
+              })}
+            </div>
+          )
+        })()}
 
         {/* Status badge + dropdown */}
         <div style={{ marginBottom: '14px', position: 'relative' }}>
