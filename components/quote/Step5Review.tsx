@@ -252,6 +252,8 @@ export default function Step5Review({ user, onSaved, onRestart }: {
         quote_mid:        calc.quote_mid,
         working_currency: currency,
         ai_assisted:      data.ai_assisted,
+        confidence:       data.confidence || '',
+        confidence_reason: data.confidence_reason || '',
         status:           'ready',
         draft_step:       5,
       }

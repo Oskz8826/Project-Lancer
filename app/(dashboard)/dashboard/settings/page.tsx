@@ -51,7 +51,7 @@ export default function SettingsPage() {
       setCountry(user.country || '')
       setCurrency((user.working_currency || 'EUR') as WorkingCurrency)
     }
-  }, [user])
+  }, [user?.id])
 
   useEffect(() => {
     if (!loading && !user) router.push('/login')

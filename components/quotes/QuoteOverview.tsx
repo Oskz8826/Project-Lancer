@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getPocketBase } from '@/lib/pocketbase'
+import { calculateQuote, USAGE_LABELS, USAGE_MULTIPLIERS } from '@/lib/benchmarks'
 import { DISCIPLINES, CURRENCY_RATES } from '@/lib/constants'
 import type { QuoteStatus, WorkingCurrency } from '@/types'
 import { jsPDF } from 'jspdf'
@@ -16,6 +17,7 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
 }
 
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
+const CONFIDENCE_COLORS: Record<string, string> = { High: '#4ade80', Medium: '#facc15', Low: '#f87171' }
 const ALL_STATUSES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'rejected', 'completed']
 
 function fmtAmount(eur: number | undefined | null, currency: string) {
@@ -57,6 +59,23 @@ export default function QuoteOverview({
 
   const disciplineLabel = DISCIPLINES.find(d => d.value === quote.discipline)?.label ?? quote.discipline
   const colors          = STATUS_COLORS[status]
+
+  const calc = quote.ai_assisted
+    ? {
+        base_min:     (quote.hours_min ?? 0) * (quote.hourly_rate ?? 0),
+        base_max:     (quote.hours_max ?? 0) * (quote.hourly_rate ?? 0),
+        revision_add: 0,
+        rush_add:     quote.rush_job ? (quote.quote_mid ?? 0) * 0.25 : 0,
+      }
+    : calculateQuote({
+        hours_min:       quote.hours_min ?? 0,
+        hours_max:       quote.hours_max ?? 0,
+        hourly_rate:     quote.hourly_rate ?? 0,
+        revision_rounds: quote.revision_rounds ?? 0,
+        revision_type:   quote.revision_type ?? 'Standard',
+        usage_rights:    quote.usage_rights ?? 'Indie',
+        rush_job:        quote.rush_job ?? false,
+      })
 
   async function handleStatusSelect(next: QuoteStatus) {
     setDropdown(false)
@@ -275,7 +294,34 @@ export default function QuoteOverview({
           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginTop: '4px' }}>
             {cur}
           </div>
+          {quote.confidence && (
+            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: CONFIDENCE_COLORS[quote.confidence] ?? '#fff' }} />
+              <span style={{ fontSize: '11px', color: CONFIDENCE_COLORS[quote.confidence] ?? '#fff' }}>
+                {quote.confidence} confidence
+              </span>
+              {quote.confidence_reason && (
+                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>— {quote.confidence_reason}</span>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* AI pill badge */}
+        {quote.ai_assisted && (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            padding: '4px 10px', borderRadius: '20px', marginBottom: '10px',
+            background: 'rgba(242,86,35,0.12)', border: '1px solid rgba(242,86,35,0.25)',
+            fontSize: '11px', color: '#f78560', width: 'fit-content',
+          }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44l-1.1-5.28a2.5 2.5 0 0 1 .02-1.04l1.08-5.24A2.5 2.5 0 0 1 9.5 2Z"/>
+              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44l1.1-5.28a2.5 2.5 0 0 0-.02-1.04l-1.08-5.24A2.5 2.5 0 0 0 14.5 2Z"/>
+            </svg>
+            AI-assisted quote
+          </div>
+        )}
 
         {/* Metadata */}
         <div style={{
@@ -290,7 +336,6 @@ export default function QuoteOverview({
           <Row label="Experience" value={quote.experience_level} />
           <Row label="Region" value={quote.country} />
           <Row label="Created" value={fmtDate(quote.created)} />
-          {quote.ai_assisted && <Row label="AI-assisted" value="Yes" valueColor="#f78560" />}
         </div>
 
         {/* Breakdown */}
@@ -302,11 +347,28 @@ export default function QuoteOverview({
           <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '2px' }}>
             Breakdown
           </div>
-          <Row label={`Rate × hours`} value={`${sym}${Math.round((quote.hourly_rate ?? 0) * rate)}/hr · ${quote.hours_min}–${quote.hours_max}h`} />
-          <Row label="Revisions" value={`${quote.revision_rounds} × ${quote.revision_type}`} />
-          <Row label="Usage rights" value={quote.usage_rights} />
-          {quote.rush_job && <Row label="Rush job" value="+25%" valueColor="#facc15" />}
-          {quote.notes && <Row label="Notes" value={quote.notes} />}
+          {[
+            { label: 'Rate',       value: `${fmtAmount(quote.hourly_rate, cur)}/hr` },
+            { label: 'Hours',      value: `${quote.hours_min}–${quote.hours_max} hrs` },
+            { label: 'Base range', value: `${fmtAmount(calc.base_min, cur)} – ${fmtAmount(calc.base_max, cur)}` },
+            ...(calc.revision_add > 0 ? [{ label: `Revisions (${quote.revision_rounds} × ${quote.revision_type})`, value: `+${fmtAmount(calc.revision_add, cur)}` }] : []),
+            ...(calc.rush_add > 0 ? [{ label: 'Rush (+25%)', value: `+${fmtAmount(calc.rush_add, cur)}` }] : []),
+            {
+              label: `Usage (${USAGE_LABELS[quote.usage_rights ?? 'Indie']})`,
+              value: quote.usage_rights === 'Personal' ? 'base rate' : `×${USAGE_MULTIPLIERS[quote.usage_rights ?? 'Indie'].toFixed(2)}`,
+            },
+          ].map(row => (
+            <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+              <span style={{ color: 'rgba(255,255,255,0.3)' }}>{row.label}</span>
+              <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>{row.value}</span>
+            </div>
+          ))}
+          {quote.notes && (
+            <div style={{ marginTop: '6px', padding: '8px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px' }}>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>Notes</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>{quote.notes}</div>
+            </div>
+          )}
         </div>
 
         {/* Progress bar */}

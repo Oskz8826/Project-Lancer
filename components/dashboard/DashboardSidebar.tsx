@@ -181,19 +181,31 @@ export default function DashboardSidebar({ active }: { active: ActivePage }) {
           </div>
         )}
 
-        {/* Avatar button */}
-        <button
+        {/* Avatar button + name label */}
+        <div
           onClick={() => setPopupOpen(o => !o)}
-          title="Account"
-          style={{
-            width: '28px', height: '28px', borderRadius: '50%',
-            background: popupOpen ? 'rgba(242,86,35,0.3)' : 'rgba(242,86,35,0.2)',
-            border: `1px solid ${popupOpen ? 'rgba(242,86,35,0.6)' : 'rgba(242,86,35,0.4)'}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '10px', fontWeight: 600, color: ACCENT, cursor: 'pointer',
-            outline: 'none', transition: 'all 0.15s',
-          }}
-        >{initials}</button>
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+        >
+          <button
+            title="Account"
+            style={{
+              width: '28px', height: '28px', borderRadius: '50%',
+              background: popupOpen ? 'rgba(242,86,35,0.3)' : 'rgba(242,86,35,0.2)',
+              border: `1px solid ${popupOpen ? 'rgba(242,86,35,0.6)' : 'rgba(242,86,35,0.4)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '10px', fontWeight: 600, color: ACCENT, cursor: 'pointer',
+              outline: 'none', transition: 'all 0.15s', pointerEvents: 'none',
+            }}
+          >{initials}</button>
+          <span style={{
+            fontSize: '9px', color: 'rgba(255,255,255,0.3)',
+            maxWidth: '44px', overflow: 'hidden', textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap', textAlign: 'center', lineHeight: 1,
+            userSelect: 'none',
+          }}>
+            {user?.name || user?.email?.split('@')[0] || ''}
+          </span>
+        </div>
       </div>
     </div>
   )
