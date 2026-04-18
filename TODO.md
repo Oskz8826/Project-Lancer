@@ -6,27 +6,17 @@ Active tasks and up-next items. Blocked/deferred work lives in BACKLOG.md.
 
 ## Next session — start here
 
-- **Admin tester switcher** — floating button on `alpha-testing` branch so Oskar can preview tester experience without changing his PocketBase tier. Build on branch, not main.
-- **Code corrections (v10)** — knock out the four items below; all are small targeted fixes, start with free tier quota (one line)
-- **Cloudflare Tunnel** — coordinate with Oskar each session alpha opens. Port 3000 (Next.js) + port 8090 (PocketBase). Setup docs in next session.
+All previous TODO items completed 2026-04-19. See BACKLOG.md for V2+ work.
 
----
+**Active branches:**
+- `main` — v10 corrections, status rename, history page (all shipped)
+- `alpha-testing` — tester switcher + Cloudflare tunnel scripts
 
-## Code corrections (v10 discrepancies — fix before alpha)
-
-These are gaps between the current build and what v10 specifies. Small, targeted fixes.
-
-- **Free tier quota** — `lib/constants.ts` TIER_LIMITS has `quotes_per_month: 3`, v10 says **10**
-- **Rush multiplier** — v10 specifies +30% flat. Verify against `lib/benchmarks.ts` (may already be correct)
-- **Usage rights multipliers** — v10: Indie ×1.3, Commercial ×1.8, AAA ×2.5. Verify these match the benchmarks file
-- **AI confidence — rule-based** — v10 says compute confidence in app logic, not from Claude output. Strip `confidence` and `confidence_reason` from AI prompt; compute server-side: High (all fields specific + benchmark match) / Medium (one ambiguity) / Low (multiple nulls or vague)
-
----
-
-## Design decisions needed (before building)
-
-- **History page** — placeholder at `/dashboard/history`. v10 §7 says: saved quotes + estimates, status tags, client filter, date filter, sort, expiring-quote highlight. Needs design sign-off before building.
-- **Quote status rename** — v10 changes status names entirely: `pending / accepted / declined / revised / superseded / expired` (currently `draft / ready / sent / accepted / rejected / completed`). This touches the DB schema, QuoteOverview, quotes page, and history. Decide when to migrate.
+**To start an alpha session:**
+1. Start PocketBase: `./pocketbase_0.36.9_windows_amd64/pocketbase.exe serve`
+2. Start Next.js: `npm run dev`
+3. Open tunnel: `npm run tunnel:app` (new terminal) — share the `*.trycloudflare.com` URL with testers
+4. Update `.env.local` → `NEXT_PUBLIC_POCKETBASE_URL` if testers need PocketBase access through the tunnel
 
 ---
 
