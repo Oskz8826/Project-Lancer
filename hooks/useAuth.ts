@@ -5,10 +5,18 @@ import { useRouter } from 'next/navigation'
 import { pb } from '@/lib/pocketbase'
 import type { UserProfile } from '@/types'
 
+const ADMIN_EMAIL = 'oskz.gameartist@gmail.com'
+const PREVIEW_KEY = 'lancer_preview_as_tester'
+
 export function useAuth() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [previewActive, setPreviewActive] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setPreviewActive(typeof window !== 'undefined' && localStorage.getItem(PREVIEW_KEY) === 'true')
+  }, [])
 
   useEffect(() => {
     // fireImmediately=true ensures the callback fires synchronously with the
@@ -50,5 +58,11 @@ export function useAuth() {
     } catch { /* ignore */ }
   }
 
-  return { user, loading, logout, refreshUser }
+  const effectiveUser = user && previewActive && user.email === ADMIN_EMAIL
+    ? { ...user, tier: 'tester' as const }
+    : user
+
+  return { user: effectiveUser, loading, logout, refreshUser, previewActive }
 }
+
+export { ADMIN_EMAIL, PREVIEW_KEY }
