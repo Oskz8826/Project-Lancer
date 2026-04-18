@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getPocketBase } from '@/lib/pocketbase'
@@ -27,6 +27,17 @@ function inputStyle(focused: boolean): React.CSSProperties {
   }
 }
 
+function dropdownTriggerStyle(isOpen: boolean, disabled = false): React.CSSProperties {
+  return {
+    width: '100%', padding: '8px 11px', borderRadius: '8px', boxSizing: 'border-box',
+    background: 'rgba(255,255,255,0.04)',
+    border: `0.5px solid ${isOpen ? 'rgba(242,86,35,0.5)' : 'rgba(255,255,255,0.1)'}`,
+    fontSize: '12px', cursor: disabled ? 'not-allowed' : 'pointer',
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    userSelect: 'none', opacity: disabled ? 0.5 : 1,
+  }
+}
+
 export default function SettingsPage() {
   const { user, loading, logout, refreshUser } = useAuth()
   const router = useRouter()
@@ -43,6 +54,8 @@ export default function SettingsPage() {
   const [saveOk,    setSaveOk]    = useState(false)
   const [saveError, setSaveError] = useState('')
   const [focusedField, setFocusedField] = useState<string | null>(null)
+  const [openDropdown, setOpenDropdown] = useState<'region' | 'country' | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Seed form from user profile once loaded
   useEffect(() => {
@@ -58,6 +71,17 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!loading && !user) router.push('/login')
   }, [loading, user, router])
+
+  useEffect(() => {
+    if (!openDropdown) return
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [openDropdown])
 
   if (loading || !user) {
     return (
@@ -169,48 +193,92 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Region + Country row */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div ref={dropdownRef} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+
+                  {/* Region */}
                   <div>
                     <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '5px' }}>
                       Region
                     </label>
-                    <select
-                      value={region}
-                      onChange={e => { setRegion(e.target.value); setCountry('') }}
-                      onFocus={() => setFocusedField('region')}
-                      onBlur={() => setFocusedField(null)}
-                      style={{ ...inputStyle(focusedField === 'region'), appearance: 'none', WebkitAppearance: 'none' }}
-                    >
-                      <option value="" style={{ background: '#1a1a24', color: '#fff' }}>Select region</option>
-                      {REGIONS.map(r => (
-                        <option key={r.value} value={r.value} style={{ background: '#1a1a24', color: '#fff' }}>
-                          {r.label}
-                        </option>
-                      ))}
-                    </select>
+                    <div style={{ position: 'relative' }}>
+                      <div
+                        onClick={() => setOpenDropdown(o => o === 'region' ? null : 'region')}
+                        style={dropdownTriggerStyle(openDropdown === 'region')}
+                      >
+                        <span style={{ color: region ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)' }}>
+                          {REGIONS.find(r => r.value === region)?.label || 'Select region'}
+                        </span>
+                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>▾</span>
+                      </div>
+                      {openDropdown === 'region' && (
+                        <div style={{
+                          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 100,
+                          background: 'rgba(13,13,18,0.98)', border: '0.5px solid rgba(255,255,255,0.12)',
+                          borderRadius: '8px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                          maxHeight: '200px', overflowY: 'auto',
+                        }}>
+                          {REGIONS.map(r => (
+                            <div
+                              key={r.value}
+                              onClick={() => { setRegion(r.value); setCountry(''); setOpenDropdown(null) }}
+                              style={{
+                                padding: '8px 11px', fontSize: '12px', cursor: 'pointer',
+                                color: region === r.value ? '#f78560' : 'rgba(255,255,255,0.7)',
+                                background: region === r.value ? 'rgba(242,86,35,0.08)' : 'transparent',
+                              }}
+                              onMouseEnter={e => { if (region !== r.value) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+                              onMouseLeave={e => { if (region !== r.value) e.currentTarget.style.background = 'transparent' }}
+                            >
+                              {r.label}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Country */}
                   <div>
                     <label style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '5px' }}>
                       Country
                     </label>
-                    <select
-                      value={country}
-                      onChange={e => setCountry(e.target.value)}
-                      onFocus={() => setFocusedField('country')}
-                      onBlur={() => setFocusedField(null)}
-                      disabled={regionCountries.length === 0}
-                      style={{
-                        ...inputStyle(focusedField === 'country'),
-                        appearance: 'none', WebkitAppearance: 'none',
-                        opacity: regionCountries.length === 0 ? 0.4 : 1,
-                      }}
-                    >
-                      <option value="" style={{ background: '#1a1a24', color: '#fff' }}>Select country</option>
-                      {regionCountries.map(c => (
-                        <option key={c} value={c} style={{ background: '#1a1a24', color: '#fff' }}>{c}</option>
-                      ))}
-                    </select>
+                    <div style={{ position: 'relative' }}>
+                      <div
+                        onClick={() => regionCountries.length > 0 && setOpenDropdown(o => o === 'country' ? null : 'country')}
+                        style={dropdownTriggerStyle(openDropdown === 'country', regionCountries.length === 0)}
+                      >
+                        <span style={{ color: country ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)' }}>
+                          {country || 'Select country'}
+                        </span>
+                        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>▾</span>
+                      </div>
+                      {openDropdown === 'country' && regionCountries.length > 0 && (
+                        <div style={{
+                          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 100,
+                          background: 'rgba(13,13,18,0.98)', border: '0.5px solid rgba(255,255,255,0.12)',
+                          borderRadius: '8px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                          maxHeight: '200px', overflowY: 'auto',
+                        }}>
+                          {regionCountries.map(c => (
+                            <div
+                              key={c}
+                              onClick={() => { setCountry(c); setOpenDropdown(null) }}
+                              style={{
+                                padding: '8px 11px', fontSize: '12px', cursor: 'pointer',
+                                color: country === c ? '#f78560' : 'rgba(255,255,255,0.7)',
+                                background: country === c ? 'rgba(242,86,35,0.08)' : 'transparent',
+                              }}
+                              onMouseEnter={e => { if (country !== c) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+                              onMouseLeave={e => { if (country !== c) e.currentTarget.style.background = 'transparent' }}
+                            >
+                              {c}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+
                 </div>
 
                 {/* Working currency */}

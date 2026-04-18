@@ -104,7 +104,7 @@ export default function DashboardSidebar() {
       {NAV_ITEMS.map(({ id, href, title, Icon }) => {
         const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
         return (
-        <Link key={id} href={href} style={{ textDecoration: 'none' }} title={title}>
+        <Link key={id} href={href} style={{ textDecoration: 'none', display: 'block' }} title={title}>
           <div style={{ position: 'relative', width: '34px', height: '34px' }}>
             {isActive && (
               <motion.div
