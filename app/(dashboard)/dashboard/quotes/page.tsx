@@ -9,6 +9,7 @@ import QuoteOverview from '@/components/quotes/QuoteOverview'
 import BuilderPanel from '@/components/quotes/BuilderPanel'
 import type { QuoteStatus } from '@/types'
 import DashboardTransition from '@/components/dashboard/DashboardTransition'
+import AlphaBanner from '@/components/dashboard/AlphaBanner'
 
 const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: string; label: string }> = {
   draft:     { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)', label: 'Draft' },
@@ -246,6 +247,8 @@ export default function QuotesPage() {
             }}
           >+ New quote</button>
         </div>
+
+        <AlphaBanner />
 
         {/* ── Content area — relative so panel can absolute-position inside ── */}
         <DashboardTransition style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>

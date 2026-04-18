@@ -1,7 +1,7 @@
 export type QuoteStatus = 'draft' | 'ready' | 'sent' | 'accepted' | 'rejected' | 'completed'
 export type UserRole = 'freelancer' | 'studio'
 export type WorkingCurrency = 'EUR' | 'GBP' | 'USD'
-export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'max'
+export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'max' | 'tester'
 
 export type Discipline =
   | '3d_hard_surface'

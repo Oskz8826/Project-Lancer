@@ -7,12 +7,14 @@ import { getPocketBase } from '@/lib/pocketbase'
 import { DISCIPLINES, REGIONS, CURRENCIES } from '@/lib/constants'
 import type { WorkingCurrency, Discipline } from '@/types'
 import DashboardTransition from '@/components/dashboard/DashboardTransition'
+import AlphaBanner from '@/components/dashboard/AlphaBanner'
 
 const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  free:  { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)' },
-  basic: { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80',                border: 'rgba(34,197,94,0.25)'   },
-  pro:   { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa',                border: 'rgba(59,130,246,0.25)'  },
-  max:   { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc',                border: 'rgba(168,85,247,0.25)'  },
+  free:   { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)' },
+  basic:  { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80',                border: 'rgba(34,197,94,0.25)'   },
+  pro:    { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa',                border: 'rgba(59,130,246,0.25)'  },
+  max:    { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc',                border: 'rgba(168,85,247,0.25)'  },
+  tester: { bg: 'rgba(251,191,36,0.1)',   text: '#fbbf24',                border: 'rgba(251,191,36,0.25)'  },
 }
 
 function inputStyle(focused: boolean): React.CSSProperties {
@@ -112,6 +114,8 @@ export default function SettingsPage() {
             Settings
           </div>
         </div>
+
+        <AlphaBanner />
 
         {/* Content */}
         <DashboardTransition style={{ flex: 1, overflowY: 'auto', padding: '24px 18px' }}>

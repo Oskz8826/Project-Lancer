@@ -42,7 +42,8 @@ export default function Step1AssetType({ user }: { user: UserProfile }) {
   const assetOptions = ASSET_TYPES[discipline] ?? []
   const canContinue  = (customMode ? customValue.trim() !== '' : assetType !== '') && complexity !== undefined
 
-  const canUseAI = user.tier !== 'free' && user.ai_addon
+  const canUseAI = user.tier !== 'free' && user.tier !== 'tester' && user.ai_addon
+  const isTester = user.tier === 'tester'
 
   async function handleAIAnalyze() {
     if (!brief.trim()) return
@@ -118,13 +119,14 @@ export default function Step1AssetType({ user }: { user: UserProfile }) {
         />
       </div>
 
-      {/* AI Assist panel — Basic+ with addon */}
-      {canUseAI && (
+      {/* AI Assist panel — Basic+ with addon, or tester (grayed out) */}
+      {(canUseAI || isTester) && (
         <div style={{
           background: 'rgba(242,86,35,0.06)',
           border: '1px solid rgba(242,86,35,0.2)',
           borderRadius: '12px',
           padding: '16px',
+          opacity: isTester ? 0.6 : 1,
         }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: '#f78560', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -135,7 +137,8 @@ export default function Step1AssetType({ user }: { user: UserProfile }) {
           </div>
           <textarea
             value={brief}
-            onChange={e => setBrief(e.target.value)}
+            onChange={e => !isTester && setBrief(e.target.value)}
+            readOnly={isTester}
             placeholder="e.g. 'Need a game-ready sci-fi rifle model with 4K textures, PBR workflow, low poly under 15k tris, delivery in 3 weeks...'"
             style={{
               width: '100%', minHeight: '80px', resize: 'vertical',
@@ -143,24 +146,28 @@ export default function Step1AssetType({ user }: { user: UserProfile }) {
               borderRadius: '8px', padding: '10px 12px',
               fontSize: '12px', color: 'rgba(255,255,255,0.8)',
               lineHeight: 1.5, fontFamily: 'inherit',
+              cursor: isTester ? 'not-allowed' : 'auto',
             }}
           />
           {aiError && (
             <div style={{ fontSize: '11px', color: '#f87171', marginTop: '6px' }}>{aiError}</div>
           )}
           <button
-            onClick={handleAIAnalyze}
-            disabled={!brief.trim() || aiLoading}
+            onClick={isTester ? undefined : handleAIAnalyze}
+            disabled={isTester || !brief.trim() || aiLoading}
+            title={isTester ? 'Not available in alpha' : undefined}
             style={{
               marginTop: '10px',
               padding: '7px 16px', borderRadius: '7px',
-              background: brief.trim() && !aiLoading ? '#F25623' : 'rgba(255,255,255,0.08)',
-              color: brief.trim() && !aiLoading ? '#fff' : 'rgba(255,255,255,0.3)',
-              border: 'none', fontSize: '12px', fontWeight: 600, cursor: brief.trim() && !aiLoading ? 'pointer' : 'default',
+              background: 'rgba(255,255,255,0.08)',
+              color: 'rgba(255,255,255,0.3)',
+              border: 'none', fontSize: '12px', fontWeight: 600,
+              cursor: isTester ? 'not-allowed' : (brief.trim() && !aiLoading ? 'pointer' : 'default'),
               transition: 'all 0.15s',
+              ...(!isTester && brief.trim() && !aiLoading ? { background: '#F25623', color: '#fff' } : {}),
             }}
           >
-            {aiLoading ? 'Analyzing...' : 'Analyze with AI →'}
+            {isTester ? 'Not available in alpha' : (aiLoading ? 'Analyzing...' : 'Analyze with AI →')}
           </button>
           <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', marginTop: '8px' }}>
             Or fill in manually below and continue step by step.

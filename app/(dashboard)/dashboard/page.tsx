@@ -8,6 +8,7 @@ import { getPocketBase } from '@/lib/pocketbase'
 import { DISCIPLINES, CURRENCY_RATES } from '@/lib/constants'
 import type { WorkingCurrency, QuoteStatus } from '@/types'
 import DashboardTransition from '@/components/dashboard/DashboardTransition'
+import AlphaBanner from '@/components/dashboard/AlphaBanner'
 
 const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: string; label: string }> = {
   draft:     { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)', label: 'Draft' },
@@ -175,6 +176,8 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+
+        <AlphaBanner />
 
         {/* Content */}
         <DashboardTransition style={{ padding: '16px 18px', flex: 1 }}>

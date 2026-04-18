@@ -76,6 +76,31 @@ function OnboardingInner() {
 }
 
 export default function OnboardingPage() {
+  if (process.env.NEXT_PUBLIC_ALPHA_MODE === 'true') {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem' }}>
+        <div className="glass" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff', marginBottom: '1.5rem' }}>
+            Lancer
+          </div>
+          <div style={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '0.75rem' }}>
+            Alpha is invite-only
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.45)', margin: '0 0 1.5rem' }}>
+            Account creation is currently closed. If you received an invite, use the credentials provided.
+          </p>
+          <Link href="/login" style={{
+            display: 'inline-block', padding: '8px 20px', borderRadius: '8px',
+            background: 'rgba(242,86,35,0.12)', border: '0.5px solid rgba(242,86,35,0.35)',
+            color: '#f78560', fontSize: '13px', fontWeight: 500, textDecoration: 'none',
+          }}>
+            Sign in
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <OnboardingProvider>
       <OnboardingInner />

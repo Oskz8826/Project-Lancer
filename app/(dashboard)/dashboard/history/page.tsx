@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import DashboardTransition from '@/components/dashboard/DashboardTransition'
+import AlphaBanner from '@/components/dashboard/AlphaBanner'
 
 export default function HistoryPage() {
   const { user, loading } = useAuth()
@@ -29,6 +30,8 @@ export default function HistoryPage() {
           History
         </div>
       </div>
+
+      <AlphaBanner />
 
       <DashboardTransition style={{ flex: 1, overflowY: 'auto', padding: '24px 18px' }}>
         <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px' }}>
