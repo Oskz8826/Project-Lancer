@@ -4,6 +4,14 @@ Active tasks and up-next items. Blocked/deferred work lives in BACKLOG.md.
 
 ---
 
+## Next session — start here
+
+- **Admin tester switcher** — floating button on `alpha-testing` branch so Oskar can preview tester experience without changing his PocketBase tier. Build on branch, not main.
+- **Code corrections (v10)** — knock out the four items below; all are small targeted fixes, start with free tier quota (one line)
+- **Cloudflare Tunnel** — coordinate with Oskar each session alpha opens. Port 3000 (Next.js) + port 8090 (PocketBase). Setup docs in next session.
+
+---
+
 ## Code corrections (v10 discrepancies — fix before alpha)
 
 These are gaps between the current build and what v10 specifies. Small, targeted fixes.
