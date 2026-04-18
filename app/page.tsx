@@ -45,7 +45,7 @@ const TIERS = [
     desc: 'Try it out',
     monthlyBase: 0,
     annualBase: 0,
-    features: ['3 quotes / month', 'Quote builder', 'Regional benchmarks', 'Multi-currency'],
+    features: ['10 quotes / month', 'Quote builder', 'Regional benchmarks', 'Multi-currency'],
     cta: 'Get started',
     ghost: true,
   },
@@ -91,7 +91,7 @@ const FAQS = [
   { q: 'Can I switch plans at any time?', a: 'Yes. Upgrades take effect immediately, downgrades at the end of your billing period. No lock-in.' },
   { q: 'What currency is billing in?', a: 'All subscriptions are billed in EUR. Your working currency for quotes is set separately at onboarding.' },
   { q: 'What happens when I hit my AI request limit?', a: 'You can continue using all non-AI features. Overage requests are available at €0.20–€1.00 per request depending on tier.' },
-  { q: 'Can I try before I buy?', a: 'The Free tier is free forever — no credit card required. Includes the full quote builder for up to 3 quotes per month.' },
+  { q: 'Can I try before I buy?', a: 'The Free tier is free forever — no credit card required. Includes the full quote builder for up to 10 quotes per month.' },
   { q: 'Is there a yearly discount?', a: 'Yes. Annual billing saves ~17% across all paid tiers.' },
   { q: 'Can I cancel anytime?', a: 'Absolutely. Cancel from your profile settings at any time. Access stays active until the end of your billing period.' },
 ]

@@ -386,8 +386,8 @@ export default function QuoteOverview({
 
         {/* Progress bar */}
         {(() => {
-          const STAGES: QuoteStatus[] = ['pending', 'revised', 'accepted']
-          const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 1, accepted: 2, declined: -1, superseded: -1, expired: -1 }
+          const STAGES = [0,1,2,3,4,5]
+          const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 2, accepted: 5, declined: -1, superseded: -1, expired: -1 }
           const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316' }
           const curIdx = IDX[status]
           const isTerminal = curIdx === -1
@@ -401,7 +401,7 @@ export default function QuoteOverview({
                   : filled
                     ? CLRS[status]
                     : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
-                return <div key={s} title={STATUS_COLORS[s].label} style={{ flex: 1, height: '3px', borderRadius: '2px', background: bg }} />
+                return <div key={s} style={{ flex: 1, height: '3px', borderRadius: '2px', background: bg }} />
               })}
             </div>
           )

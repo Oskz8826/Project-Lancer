@@ -19,9 +19,9 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
-const PROGRESS_STAGES: QuoteStatus[] = ['pending', 'revised', 'accepted']
+const PROGRESS_STAGES = [0,1,2,3,4,5]
 const PROGRESS_INDEX: Record<QuoteStatus, number> = {
-  pending: 0, revised: 1, accepted: 2, declined: -1, superseded: -1, expired: -1,
+  pending: 0, revised: 2, accepted: 5, declined: -1, superseded: -1, expired: -1,
 }
 const STAGE_COLORS: Record<QuoteStatus, string> = {
   pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80',
@@ -44,7 +44,6 @@ function StatusBar({ status }: { status: QuoteStatus }) {
         return (
           <div
             key={stage}
-            title={STATUS_COLORS[stage].label}
             style={{
               flex: 1, height: '3px', borderRadius: '2px',
               background: color,

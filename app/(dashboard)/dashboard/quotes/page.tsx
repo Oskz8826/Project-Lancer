@@ -329,8 +329,8 @@ export default function QuotesPage() {
                         <div style={{ width: '100%', minWidth: 0 }}>
                           {/* Progress bar */}
                           {(() => {
-                            const STAGES: QuoteStatus[] = ['pending', 'revised', 'accepted']
-                            const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 1, accepted: 2, declined: -1, superseded: -1, expired: -1 }
+                            const STAGES = [0,1,2,3,4,5]
+                            const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 2, accepted: 5, declined: -1, superseded: -1, expired: -1 }
                             const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316' }
                             const curIdx = IDX[qStatus]
                             const isRej = curIdx === -1
