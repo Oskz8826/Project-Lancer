@@ -16,12 +16,8 @@ The JSON must follow this exact structure:
   "rush_job": boolean,
   "quote_min_eur": number,
   "quote_max_eur": number,
-  "confidence": "Low" | "Medium" | "High",
-  "confidence_reason": string,
   "notes": string
-}
-
-If the brief is too vague, set confidence to "Low" and explain in confidence_reason what information is missing.`
+}`
 
 export async function POST(req: NextRequest) {
   // Auth check
@@ -89,7 +85,27 @@ Based on this brief and artist profile, suggest a quote using the JSON format sp
 
     const text = message.content[0].type === 'text' ? message.content[0].text : ''
     const data = JSON.parse(text)
-    return NextResponse.json(data)
+
+    // Confidence computed rule-based (v10 §5.5) — not from Claude
+    const nullFields = [discipline, experience_level, region].filter(
+      (v) => !v || v === 'Not specified'
+    ).length
+    const hasAssetType = !!(data.asset_type && String(data.asset_type).trim())
+
+    let confidence: 'High' | 'Medium' | 'Low'
+    let confidence_reason: string
+    if (nullFields === 0 && hasAssetType) {
+      confidence = 'High'
+      confidence_reason = 'All inputs complete — estimate is well-grounded.'
+    } else if (nullFields <= 1) {
+      confidence = 'Medium'
+      confidence_reason = 'One or more inputs are approximate — estimate may vary.'
+    } else {
+      confidence = 'Low'
+      confidence_reason = 'Multiple inputs missing or vague — treat as a rough guide only.'
+    }
+
+    return NextResponse.json({ ...data, confidence, confidence_reason })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'AI request failed'
     return NextResponse.json({ error: msg }, { status: 500 })

@@ -188,9 +188,9 @@ export function getSuggestedHours(
 // ─── Usage Rights Multipliers ─────────────────────────────────────────────────
 export const USAGE_MULTIPLIERS: Record<string, number> = {
   Personal:    1.00,
-  Indie:       1.10,
-  Commercial:  1.25,
-  AAA:         1.50,
+  Indie:       1.30,
+  Commercial:  1.80,
+  AAA:         2.50,
   Exclusive:   1.75,
 }
 
@@ -237,7 +237,7 @@ export function calculateQuote(params: {
 
   const rev_rate = REVISION_RATES[revision_type] ?? 0.10
   const revision_add = base_mid * rev_rate * revision_rounds
-  const rush_add = rush_job ? base_mid * 0.25 : 0
+  const rush_add = rush_job ? base_mid * 0.30 : 0
   const usage_mult = USAGE_MULTIPLIERS[usage_rights] ?? 1.0
 
   const quote_min = (base_min + revision_add + rush_add) * usage_mult

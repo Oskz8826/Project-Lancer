@@ -56,7 +56,7 @@ export const CURRENCY_RATES: Record<string, number> = {
 }
 
 export const TIER_LIMITS = {
-  free:   { quotes_per_month: 3,        additional_skills: 2        },
+  free:   { quotes_per_month: 10,       additional_skills: 2        },
   basic:  { quotes_per_month: Infinity, additional_skills: Infinity },
   pro:    { quotes_per_month: Infinity, additional_skills: Infinity },
   max:    { quotes_per_month: Infinity, additional_skills: Infinity },

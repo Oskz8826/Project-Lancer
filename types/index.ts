@@ -1,4 +1,4 @@
-export type QuoteStatus = 'draft' | 'ready' | 'sent' | 'accepted' | 'rejected' | 'completed'
+export type QuoteStatus = 'pending' | 'accepted' | 'declined' | 'revised' | 'superseded' | 'expired'
 export type UserRole = 'freelancer' | 'studio'
 export type WorkingCurrency = 'EUR' | 'GBP' | 'USD'
 export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'max' | 'tester'

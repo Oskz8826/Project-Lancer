@@ -9,17 +9,17 @@ import type { QuoteStatus, WorkingCurrency } from '@/types'
 import { jsPDF } from 'jspdf'
 
 const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: string; label: string }> = {
-  draft:     { bg: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.55)', border: 'rgba(255,255,255,0.15)', label: 'Draft' },
-  ready:     { bg: 'rgba(242,86,35,0.1)',    text: '#f78560',               border: 'rgba(242,86,35,0.25)',   label: 'Ready' },
-  sent:      { bg: 'rgba(59,130,246,0.12)',  text: '#60a5fa',               border: 'rgba(59,130,246,0.3)',   label: 'Sent' },
-  accepted:  { bg: 'rgba(34,197,94,0.12)',   text: '#4ade80',               border: 'rgba(34,197,94,0.3)',    label: 'Accepted' },
-  rejected:  { bg: 'rgba(239,68,68,0.12)',   text: '#f87171',               border: 'rgba(239,68,68,0.3)',    label: 'Rejected' },
-  completed: { bg: 'rgba(168,85,247,0.12)',  text: '#c084fc',               border: 'rgba(168,85,247,0.3)',   label: 'Completed' },
+  pending:    { bg: 'rgba(250,204,21,0.1)',   text: '#facc15',               border: 'rgba(250,204,21,0.25)',  label: 'Pending' },
+  accepted:   { bg: 'rgba(34,197,94,0.12)',   text: '#4ade80',               border: 'rgba(34,197,94,0.3)',    label: 'Accepted' },
+  declined:   { bg: 'rgba(239,68,68,0.12)',   text: '#f87171',               border: 'rgba(239,68,68,0.3)',    label: 'Declined' },
+  revised:    { bg: 'rgba(59,130,246,0.12)',  text: '#60a5fa',               border: 'rgba(59,130,246,0.3)',   label: 'Revised' },
+  superseded: { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.12)', label: 'Superseded' },
+  expired:    { bg: 'rgba(249,115,22,0.1)',   text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
 const CONFIDENCE_COLORS: Record<string, string> = { High: '#4ade80', Medium: '#facc15', Low: '#f87171' }
-const ALL_STATUSES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'rejected', 'completed']
+const ALL_STATUSES: QuoteStatus[] = ['pending', 'accepted', 'declined', 'revised', 'superseded', 'expired']
 
 function fmtAmount(eur: number | undefined | null, currency: string) {
   if (eur == null || isNaN(eur)) return '—'
@@ -386,18 +386,18 @@ export default function QuoteOverview({
 
         {/* Progress bar */}
         {(() => {
-          const STAGES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'completed']
-          const IDX: Record<QuoteStatus, number> = { draft: 0, ready: 1, sent: 2, accepted: 3, completed: 4, rejected: 2 }
-          const CLRS: Record<QuoteStatus, string> = { draft: 'rgba(255,255,255,0.4)', ready: '#f78560', sent: '#60a5fa', accepted: '#4ade80', completed: '#c084fc', rejected: '#f87171' }
+          const STAGES: QuoteStatus[] = ['pending', 'revised', 'accepted']
+          const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 1, accepted: 2, declined: -1, superseded: -1, expired: -1 }
+          const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316' }
           const curIdx = IDX[status]
-          const isRejected = status === 'rejected'
+          const isTerminal = curIdx === -1
           return (
             <div style={{ display: 'flex', gap: '4px', marginBottom: '14px' }}>
               {STAGES.map((s, i) => {
-                const filled = i <= curIdx
-                const isNext = i === curIdx + 1
-                const bg = isRejected
-                  ? '#f87171'
+                const filled = !isTerminal && i <= curIdx
+                const isNext = !isTerminal && i === curIdx + 1
+                const bg = isTerminal
+                  ? CLRS[status]
                   : filled
                     ? CLRS[status]
                     : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
@@ -435,7 +435,7 @@ export default function QuoteOverview({
               backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
               minWidth: '140px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
             }}>
-              {ALL_STATUSES.filter(s => s !== 'draft' || status === 'draft').map(s => {
+              {ALL_STATUSES.map(s => {
                 const c = STATUS_COLORS[s]
                 return (
                   <button
@@ -457,8 +457,8 @@ export default function QuoteOverview({
           )}
         </div>
 
-        {/* Edit button — drafts only */}
-        {status === 'draft' && onEdit && (
+        {/* Edit button — pending/revised only */}
+        {(status === 'pending' || status === 'revised') && onEdit && (
           <button
             onClick={onEdit}
             style={{

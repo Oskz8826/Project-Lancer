@@ -11,34 +11,33 @@ import DashboardTransition from '@/components/dashboard/DashboardTransition'
 import AlphaBanner from '@/components/dashboard/AlphaBanner'
 
 const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: string; label: string }> = {
-  draft:     { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)', label: 'Draft' },
-  ready:     { bg: 'rgba(242,86,35,0.08)',   text: '#f78560',               border: 'rgba(242,86,35,0.25)',   label: 'Ready' },
-  sent:      { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa',               border: 'rgba(59,130,246,0.25)',  label: 'Sent' },
-  accepted:  { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80',               border: 'rgba(34,197,94,0.25)',   label: 'Accepted' },
-  rejected:  { bg: 'rgba(239,68,68,0.1)',    text: '#f87171',               border: 'rgba(239,68,68,0.25)',   label: 'Rejected' },
-  completed: { bg: 'rgba(168,85,247,0.1)',   text: '#c084fc',               border: 'rgba(168,85,247,0.25)', label: 'Completed' },
+  pending:    { bg: 'rgba(250,204,21,0.08)',  text: '#facc15',               border: 'rgba(250,204,21,0.25)',  label: 'Pending' },
+  accepted:   { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80',               border: 'rgba(34,197,94,0.25)',   label: 'Accepted' },
+  declined:   { bg: 'rgba(239,68,68,0.1)',    text: '#f87171',               border: 'rgba(239,68,68,0.25)',   label: 'Declined' },
+  revised:    { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa',               border: 'rgba(59,130,246,0.25)',  label: 'Revised' },
+  superseded: { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.12)', label: 'Superseded' },
+  expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
-const PROGRESS_STAGES: QuoteStatus[] = ['draft', 'ready', 'sent', 'accepted', 'completed']
+const PROGRESS_STAGES: QuoteStatus[] = ['pending', 'revised', 'accepted']
 const PROGRESS_INDEX: Record<QuoteStatus, number> = {
-  draft: 0, ready: 1, sent: 2, accepted: 3, completed: 4, rejected: 2,
+  pending: 0, revised: 1, accepted: 2, declined: -1, superseded: -1, expired: -1,
 }
 const STAGE_COLORS: Record<QuoteStatus, string> = {
-  draft: 'rgba(255,255,255,0.4)', ready: '#f78560', sent: '#60a5fa',
-  accepted: '#4ade80', completed: '#c084fc', rejected: '#f87171',
+  pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80',
+  declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316',
 }
 
 function StatusBar({ status }: { status: QuoteStatus }) {
   const currentIdx = PROGRESS_INDEX[status]
-  const isRejected = status === 'rejected'
+  const isTerminal = currentIdx === -1
   return (
     <div style={{ display: 'flex', gap: '3px', marginBottom: '7px', width: '25%' }}>
       {PROGRESS_STAGES.map((stage, i) => {
-        const filled = i <= currentIdx
-        const isCurrent = i === currentIdx
-        const isNext = i === currentIdx + 1
-        const color = isRejected
-          ? '#f87171'
+        const filled = !isTerminal && i <= currentIdx
+        const isNext = !isTerminal && i === currentIdx + 1
+        const color = isTerminal
+          ? STAGE_COLORS[status]
           : filled
             ? STAGE_COLORS[status]
             : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
@@ -72,10 +71,11 @@ function fmtDate(iso: string) {
 }
 
 const QUOTE_CAP: Record<string, number> = {
-  free: 3,
+  free: 10,
   basic: Infinity,
   pro: Infinity,
   max: Infinity,
+  tester: Infinity,
 }
 
 function getGreeting(): string {
