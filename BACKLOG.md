@@ -36,6 +36,11 @@ Schema change: `primary_discipline` (text) → `disciplines` (JSON array or rela
 ### User-Selectable Dashboard Transition Style (Settings)
 Allow users to pick their preferred dashboard tab transition animation from the Settings page. Three options: Drift (fade, current default), Scale (opacity + scale spring), Rise (opacity + upward slide spring). Store preference in PocketBase user record or localStorage.
 
+### PDF Builder (Pro/Max tier)
+Allow higher-tier users to customise the quote PDF template — upload their own logo, add a signature, and optionally set a custom accent color. Free/Basic get the default Lancer template. Exact tier gate TBD.
+
+**Why deferred:** PDF template design not finalised yet. Builder UI + PocketBase file storage for logo/signature needed. Depends on settling on a PDF template first.
+
 ### Other V2+
 - Budget estimator — studio side, estimate full project cost across multiple assets/contractors
 - Team seats
