@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
-const FILTERS = ['all', 'pending', 'accepted', 'declined', 'revised', 'superseded', 'expired'] as const
+const FILTERS = ['all', 'pending', 'revised', 'accepted', 'declined', 'superseded', 'expired'] as const
 
 const STAGE_ORDER: Record<QuoteStatus, number> = {
   pending: 0, revised: 1, accepted: 2, declined: 3, superseded: 4, expired: 5,
@@ -340,7 +340,7 @@ export default function QuotesPage() {
                                   const filled = i <= curIdx
                                   const isNext = i === curIdx + 1
                                   const bg = isRej
-                                    ? '#f87171'
+                                    ? CLRS[qStatus]
                                     : filled
                                       ? CLRS[qStatus]
                                       : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'

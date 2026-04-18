@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
-const ALL_STATUSES: QuoteStatus[] = ['pending', 'accepted', 'declined', 'revised', 'superseded', 'expired']
+const ALL_STATUSES: QuoteStatus[] = ['pending', 'revised', 'accepted', 'declined', 'superseded', 'expired']
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
 const QUOTE_EXPIRY_DAYS = 30
 
@@ -450,7 +450,7 @@ export default function HistoryPage() {
         ) : (
           <div style={{
             background: 'rgba(255,255,255,0.02)', borderRadius: '12px',
-            border: '0.5px solid rgba(255,255,255,0.06)', overflow: 'hidden',
+            border: '0.5px solid rgba(255,255,255,0.06)',
           }}>
             {/* Header */}
             <div style={{
@@ -482,15 +482,18 @@ export default function HistoryPage() {
               </div>
               <div>Project</div>
               {(['client', 'discipline', 'price', 'status', 'created'] as const).map(col => (
-                <div key={col} style={{ position: 'relative', overflow: 'visible' }}>
-                  {col === 'client' ? 'Client' : col === 'discipline' ? 'Discipline' : col === 'price' ? 'Price range' : col === 'status' ? 'Status' : 'Created'}
+                <div key={col} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <span>{col === 'client' ? 'Client' : col === 'discipline' ? 'Discipline' : col === 'price' ? 'Price range' : col === 'status' ? 'Status' : 'Created'}</span>
                   <div
                     onMouseDown={e => startResize(e, col)}
                     style={{
-                      position: 'absolute', right: -4, top: -4, bottom: -4, width: '8px',
+                      position: 'absolute', right: 0, top: 0, bottom: 0, width: '6px',
                       cursor: 'col-resize', zIndex: 10,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}
-                  />
+                  >
+                    <div style={{ width: '1px', height: '60%', background: 'rgba(255,255,255,0.18)', borderRadius: '1px' }} />
+                  </div>
                 </div>
               ))}
             </div>

@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
 
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
 const CONFIDENCE_COLORS: Record<string, string> = { High: '#4ade80', Medium: '#facc15', Low: '#f87171' }
-const ALL_STATUSES: QuoteStatus[] = ['pending', 'accepted', 'declined', 'revised', 'superseded', 'expired']
+const ALL_STATUSES: QuoteStatus[] = ['pending', 'revised', 'accepted', 'declined', 'superseded', 'expired']
 
 function fmtAmount(eur: number | undefined | null, currency: string) {
   if (eur == null || isNaN(eur)) return '—'
