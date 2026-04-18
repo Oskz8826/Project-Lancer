@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "tunnel:app": "cloudflared tunnel --url http://localhost:3000",
+    "tunnel:pb": "cloudflared tunnel --url http://localhost:8090"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",
