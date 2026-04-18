@@ -50,7 +50,7 @@ function IconSettings({ color = 'rgba(255,255,255,0.3)' }: { color?: string }) {
 const NAV_ITEMS: { id: string; href: string; title: string; Icon: React.FC<{ color?: string }> }[] = [
   { id: 'dashboard', href: '/dashboard',          title: 'Dashboard', Icon: IconDashboard },
   { id: 'quotes',    href: '/dashboard/quotes',   title: 'Quotes',    Icon: IconQuotes   },
-  { id: 'history',   href: '/dashboard/quotes',   title: 'History',   Icon: IconHistory  },
+  { id: 'history',   href: '/dashboard/history',  title: 'History',   Icon: IconHistory  },
   { id: 'settings',  href: '/dashboard/settings', title: 'Settings',  Icon: IconSettings },
 ]
 
