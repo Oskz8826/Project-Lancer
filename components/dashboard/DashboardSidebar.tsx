@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-
-type ActivePage = 'dashboard' | 'quotes' | 'history' | 'settings'
+import { motion } from 'framer-motion'
+import { usePathname } from 'next/navigation'
 
 function IconDashboard({ color = 'rgba(255,255,255,0.3)' }: { color?: string }) {
   return (
@@ -47,27 +47,17 @@ function IconSettings({ color = 'rgba(255,255,255,0.3)' }: { color?: string }) {
   )
 }
 
-function NavIcon({ href, title, active, children }: {
-  href: string
-  title: string
-  active: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <Link href={href} style={{ textDecoration: 'none' }} title={title}>
-      <div style={{
-        width: '34px', height: '34px', borderRadius: '8px',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: active ? 'rgba(242,86,35,0.15)' : 'transparent',
-        border: active ? '1px solid rgba(242,86,35,0.3)' : '1px solid transparent',
-      }}>
-        {children}
-      </div>
-    </Link>
-  )
-}
+const NAV_ITEMS: { id: string; href: string; title: string; Icon: React.FC<{ color?: string }> }[] = [
+  { id: 'dashboard', href: '/dashboard',          title: 'Dashboard', Icon: IconDashboard },
+  { id: 'quotes',    href: '/dashboard/quotes',   title: 'Quotes',    Icon: IconQuotes   },
+  { id: 'history',   href: '/dashboard/quotes',   title: 'History',   Icon: IconHistory  },
+  { id: 'settings',  href: '/dashboard/settings', title: 'Settings',  Icon: IconSettings },
+]
 
-export default function DashboardSidebar({ active }: { active: ActivePage }) {
+const ACCENT = '#f25623'
+
+export default function DashboardSidebar() {
+  const pathname = usePathname()
   const { user, logout } = useAuth()
   const router = useRouter()
   const [popupOpen, setPopupOpen] = useState(false)
@@ -77,8 +67,6 @@ export default function DashboardSidebar({ active }: { active: ActivePage }) {
     ? (user.name || user.email?.split('@')[0] || 'U')
         .split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
     : 'U'
-
-  const ACCENT = '#f25623'
 
   useEffect(() => {
     if (!popupOpen) return
@@ -112,27 +100,39 @@ export default function DashboardSidebar({ active }: { active: ActivePage }) {
         }}>L</div>
       </Link>
 
-      <NavIcon href="/dashboard" title="Dashboard" active={active === 'dashboard'}>
-        <IconDashboard color={active === 'dashboard' ? ACCENT : 'rgba(255,255,255,0.3)'} />
-      </NavIcon>
-
-      <NavIcon href="/dashboard/quotes" title="Quotes" active={active === 'quotes'}>
-        <IconQuotes color={active === 'quotes' ? ACCENT : 'rgba(255,255,255,0.3)'} />
-      </NavIcon>
-
-      <NavIcon href="/dashboard/history" title="History" active={active === 'history'}>
-        <IconHistory color={active === 'history' ? ACCENT : 'rgba(255,255,255,0.3)'} />
-      </NavIcon>
-
-      <NavIcon href="/dashboard/settings" title="Settings" active={active === 'settings'}>
-        <IconSettings color={active === 'settings' ? ACCENT : 'rgba(255,255,255,0.3)'} />
-      </NavIcon>
+      {/* Nav icons with sliding indicator */}
+      {NAV_ITEMS.map(({ id, href, title, Icon }) => {
+        const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+        return (
+        <Link key={id} href={href} style={{ textDecoration: 'none' }} title={title}>
+          <div style={{ position: 'relative', width: '34px', height: '34px' }}>
+            {isActive && (
+              <motion.div
+                layoutId="sidebar-active"
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                style={{
+                  position: 'absolute', inset: 0, borderRadius: '8px',
+                  background: 'rgba(242,86,35,0.15)',
+                  border: '1px solid rgba(242,86,35,0.3)',
+                }}
+              />
+            )}
+            <div style={{
+              position: 'relative', zIndex: 1,
+              width: '34px', height: '34px', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon color={isActive ? ACCENT : 'rgba(255,255,255,0.3)'} />
+            </div>
+          </div>
+        </Link>
+        )
+      })}
 
       <div style={{ flex: 1 }} />
 
       {/* Avatar + popup */}
       <div ref={popupRef} style={{ position: 'relative' }}>
-        {/* Popup */}
         {popupOpen && (
           <div style={{
             position: 'absolute', bottom: '38px', left: '8px',
@@ -142,7 +142,6 @@ export default function DashboardSidebar({ active }: { active: ActivePage }) {
             boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             minWidth: '180px', zIndex: 100,
           }}>
-            {/* User info */}
             <div style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {user?.name || 'Your account'}
@@ -151,7 +150,6 @@ export default function DashboardSidebar({ active }: { active: ActivePage }) {
                 {user?.email}
               </div>
             </div>
-            {/* Actions */}
             <button
               onClick={() => { setPopupOpen(false); router.push('/dashboard/settings') }}
               style={{
@@ -181,7 +179,6 @@ export default function DashboardSidebar({ active }: { active: ActivePage }) {
           </div>
         )}
 
-        {/* Avatar button + name label */}
         <div
           onClick={() => setPopupOpen(o => !o)}
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer' }}

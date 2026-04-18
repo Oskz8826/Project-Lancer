@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import StarField from '@/components/ui/StarField'
+import ClientLayout from './ClientLayout'
 
 export const metadata: Metadata = {
   title: 'Lancer — Game Dev Pricing & Budget Estimator',
@@ -13,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <StarField />
         <div className="above-stars">
-          {children}
+          <ClientLayout>{children}</ClientLayout>
         </div>
       </body>
     </html>

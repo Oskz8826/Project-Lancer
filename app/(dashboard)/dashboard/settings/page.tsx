@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getPocketBase } from '@/lib/pocketbase'
 import { DISCIPLINES, REGIONS, CURRENCIES } from '@/lib/constants'
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
 import type { WorkingCurrency, Discipline } from '@/types'
+import DashboardTransition from '@/components/dashboard/DashboardTransition'
 
 const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   free:  { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)' },
@@ -97,11 +97,7 @@ export default function SettingsPage() {
   const regionCountries = REGIONS.find(r => r.value === region)?.countries ?? []
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr', minHeight: '100vh' }}>
-
-      <DashboardSidebar active="settings" />
-
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
         {/* Top bar */}
         <div style={{
@@ -118,7 +114,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 18px' }}>
+        <DashboardTransition style={{ flex: 1, overflowY: 'auto', padding: '24px 18px' }}>
           <div style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
             {/* ── Profile card ── */}
@@ -319,9 +315,8 @@ export default function SettingsPage() {
             </div>
 
           </div>
-        </div>
+        </DashboardTransition>
       </div>
-    </div>
   )
 }
 

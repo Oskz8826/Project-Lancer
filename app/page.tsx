@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import TransitionLink from '@/components/ui/TransitionLink'
 
 function Checkbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -97,7 +97,6 @@ const FAQS = [
 ]
 
 export default function LandingPage() {
-  const { user, loading, logout } = useAuth()
   const [billing, setBilling] = useState<Billing>('monthly')
   const [aiBasic, setAiBasic] = useState(false)
   const [aiPro,   setAiPro]   = useState(false)
@@ -116,35 +115,6 @@ export default function LandingPage() {
 
   return (
     <>
-      {/* ── NAVBAR ── */}
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 2rem', height: '56px',
-        background: 'rgba(13,13,18,0.85)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <Link href="/" style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>Lancer</Link>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>Home</span>
-          <Link href="/pricing" style={{ fontSize: '0.88rem', textDecoration: 'none', color: 'rgba(255,255,255,0.45)', fontWeight: 400 }}>Pricing</Link>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          {!loading && (user ? (
-            <>
-              <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)' }}>{user.name}</span>
-              <Link href="/dashboard" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>Dashboard</Link>
-              <button onClick={logout} style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Sign out</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sign in</Link>
-              <Link href="/onboarding" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>Get started free</Link>
-            </>
-          ))}
-        </div>
-      </nav>
-
       {/* ── HERO ── */}
       <section style={{ textAlign: 'center', padding: '6rem 1.5rem 4rem', maxWidth: '680px', margin: '0 auto' }}>
         <div style={{
@@ -172,9 +142,9 @@ export default function LandingPage() {
           <Link href="/onboarding" className="btn-accent" style={{ textDecoration: 'none' }}>
             Get started free
           </Link>
-          <Link href="/pricing" className="btn-ghost" style={{ textDecoration: 'none' }}>
+          <TransitionLink href="/pricing" className="btn-ghost" style={{ textDecoration: 'none' }}>
             See pricing
-          </Link>
+          </TransitionLink>
         </div>
         <p style={{ marginTop: '1.2rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)' }}>
           Free forever. No credit card required.
@@ -349,9 +319,9 @@ export default function LandingPage() {
         </div>
 
         <div style={{ marginTop: '1.5rem' }}>
-          <Link href="/pricing" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '1px' }}>
+          <TransitionLink href="/pricing" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '1px' }}>
             Compare all features →
-          </Link>
+          </TransitionLink>
         </div>
       </section>
 

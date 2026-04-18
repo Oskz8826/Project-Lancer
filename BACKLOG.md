@@ -33,6 +33,9 @@ Allow Pro/Max users to set multiple primary disciplines on their profile. Curren
 Schema change: `primary_discipline` (text) → `disciplines` (JSON array or relation).
 **Tier gate:** Pro + Max only.
 
+### User-Selectable Dashboard Transition Style (Settings)
+Allow users to pick their preferred dashboard tab transition animation from the Settings page. Three options: Drift (fade, current default), Scale (opacity + scale spring), Rise (opacity + upward slide spring). Store preference in PocketBase user record or localStorage.
+
 ### Other V2+
 - Budget estimator — studio side, estimate full project cost across multiple assets/contractors
 - Team seats

@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getPocketBase } from '@/lib/pocketbase'
 import { DISCIPLINES, CURRENCY_RATES } from '@/lib/constants'
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
 import type { WorkingCurrency, QuoteStatus } from '@/types'
+import DashboardTransition from '@/components/dashboard/DashboardTransition'
 
 const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: string; label: string }> = {
   draft:     { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)', label: 'Draft' },
@@ -139,13 +139,7 @@ export default function DashboardPage() {
   const quotesRemaining = isFree ? Math.max(quoteCap - quotesUsed, 0) : null
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr', minHeight: '100vh' }}>
-
-      {/* ── Sidebar ── */}
-      <DashboardSidebar active="dashboard" />
-
-      {/* ── Main content ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
         {/* Top bar */}
         <div style={{
@@ -183,7 +177,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Content */}
-        <div style={{ padding: '16px 18px', flex: 1 }}>
+        <DashboardTransition style={{ padding: '16px 18px', flex: 1 }}>
 
           {/* 3-stat grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '14px' }}>
@@ -353,7 +347,7 @@ export default function DashboardPage() {
               })}
             </div>
           )}
-        </div>
+        </DashboardTransition>
 
         {/* Footer quota bar — free only */}
         {isFree && (
@@ -386,7 +380,6 @@ export default function DashboardPage() {
             </Link>
           </div>
         )}
-      </div>
     </div>
   )
 }

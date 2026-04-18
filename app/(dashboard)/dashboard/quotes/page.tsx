@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getPocketBase } from '@/lib/pocketbase'
 import { DISCIPLINES, CURRENCY_RATES } from '@/lib/constants'
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
 import QuoteOverview from '@/components/quotes/QuoteOverview'
 import BuilderPanel from '@/components/quotes/BuilderPanel'
 import type { QuoteStatus } from '@/types'
+import DashboardTransition from '@/components/dashboard/DashboardTransition'
 
 const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: string; label: string }> = {
   draft:     { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.45)', border: 'rgba(255,255,255,0.12)', label: 'Draft' },
@@ -129,11 +129,7 @@ export default function QuotesPage() {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr', minHeight: '100vh' }}>
-
-      <DashboardSidebar active="quotes" />
-
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
         {/* ── Top bar — full width, never narrowed by panel ── */}
         <div style={{
@@ -252,7 +248,7 @@ export default function QuotesPage() {
         </div>
 
         {/* ── Content area — relative so panel can absolute-position inside ── */}
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <DashboardTransition style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 
           {/* Quote list — right padding opens up when panel is visible */}
           <div style={{
@@ -440,8 +436,7 @@ export default function QuotesPage() {
               ) : null
             )}
           </div>
-        </div>
+        </DashboardTransition>
       </div>
-    </div>
   )
 }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
 
 function Checkbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -77,7 +76,6 @@ function Cell({ value }: { value: string | boolean }) {
 }
 
 export default function PricingPage() {
-  const { user, loading, logout } = useAuth()
   const [billing, setBilling] = useState<Billing>('monthly')
   const [aiBasic, setAiBasic] = useState(false)
   const [aiPro,   setAiPro]   = useState(false)
@@ -101,35 +99,6 @@ export default function PricingPage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
-      {/* ── NAVBAR ── */}
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 2rem', height: '56px',
-        background: 'rgba(13,13,18,0.85)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <Link href="/" style={{ fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em', textDecoration: 'none', color: '#fff' }}>Lancer</Link>
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
-          <Link href="/" style={{ fontSize: '0.88rem', textDecoration: 'none', color: 'rgba(255,255,255,0.45)', fontWeight: 400 }}>Home</Link>
-          <span style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>Pricing</span>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          {!loading && (user ? (
-            <>
-              <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)' }}>{user.name}</span>
-              <Link href="/dashboard" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>Dashboard</Link>
-              <button onClick={logout} style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Sign out</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sign in</Link>
-              <Link href="/onboarding" className="btn-accent" style={{ textDecoration: 'none', fontSize: '0.88rem', padding: '0.45rem 1rem' }}>Get started free</Link>
-            </>
-          ))}
-        </div>
-      </nav>
-
       {/* ── HERO ── */}
       <section style={{ textAlign: 'center', padding: '5rem 1.5rem 3rem' }}>
         <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 0.8rem' }}>
