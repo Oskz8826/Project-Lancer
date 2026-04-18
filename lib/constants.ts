@@ -16,34 +16,29 @@ export const DISCIPLINES: { value: Discipline; label: string }[] = [
 
 export const REGIONS: { value: string; label: string; countries: string[] }[] = [
   {
-    value: 'western_europe',
-    label: 'Western Europe',
-    countries: ['Germany', 'France', 'Netherlands', 'Belgium', 'Austria', 'Switzerland', 'Sweden', 'Norway', 'Denmark', 'Finland'],
-  },
-  {
-    value: 'eastern_europe',
-    label: 'Eastern Europe',
-    countries: ['Poland', 'Czech Republic', 'Hungary', 'Romania', 'Bulgaria', 'Estonia', 'Latvia', 'Lithuania', 'Ukraine', 'Serbia'],
+    value: 'europe',
+    label: 'Europe',
+    countries: ['Austria', 'Belgium', 'Bulgaria', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Hungary', 'Italy', 'Latvia', 'Lithuania', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom'],
   },
   {
     value: 'north_america',
     label: 'North America',
-    countries: ['United States', 'Canada'],
+    countries: ['Canada', 'Mexico', 'United States'],
   },
   {
-    value: 'latin_america',
-    label: 'Latin America',
-    countries: ['Brazil', 'Argentina', 'Mexico', 'Colombia', 'Chile'],
+    value: 'south_america',
+    label: 'South America',
+    countries: ['Argentina', 'Brazil', 'Chile', 'Colombia'],
   },
   {
     value: 'asia_pacific',
     label: 'Asia Pacific',
-    countries: ['China', 'Japan', 'South Korea', 'India', 'Australia', 'New Zealand', 'Indonesia', 'Philippines', 'Vietnam', 'Thailand'],
+    countries: ['Australia', 'China', 'India', 'Indonesia', 'Japan', 'New Zealand', 'Philippines', 'South Korea', 'Thailand', 'Vietnam'],
   },
   {
     value: 'middle_east_africa',
     label: 'Middle East & Africa',
-    countries: ['UAE', 'Saudi Arabia', 'Israel', 'South Africa', 'Egypt', 'Nigeria'],
+    countries: ['Egypt', 'Israel', 'Nigeria', 'Saudi Arabia', 'South Africa', 'UAE'],
   },
 ]
 
