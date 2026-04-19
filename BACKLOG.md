@@ -9,6 +9,17 @@ Items approved in concept but deferred. Organized by release milestone.
 - **Stripe integration** — subscription billing. Blocked on Lancer OÜ registration.
 - **Resend.com email integration** — transactional email. Blocked on registration.
 - **ANTHROPIC_API_KEY** — AI assist is fully built, just needs the key. Deferred until API billing set up.
+- **Hetzner Cloud CX22 deploy** — VM provisioning + deployment. Deferred until closer to launch.
+
+---
+
+## v10.1 Brief Updates — Deferred (needs API key first)
+
+Brief updated 2026-04-19. Three changes landed:
+
+1. **Credit system rewrite (§4.3/4.4/5.5/13.3/Appendix B)** — model access: Basic=Haiku, Pro=Haiku+Sonnet, Max=all three. Credit ratio 1:3:15. Budgets 15/60/600 by tier. Pack sizes: Basic 15/€4, Pro 60/€10, Max 150/€15 (all TBD). Unified `ai_credit_balance` data model. When implementing: update `TIER_LIMITS` in `lib/constants.ts` and any model assignment logic.
+2. **EA discount is yearly-only** — monthly always full price. Cancellation preserves EA status; only explicit surrender or full account deletion forfeits it permanently.
+3. **12 months, not 14** — effective monthly prices: Basic €3.20, Pro €6.83, Max €17.28. Recalculate any hardcoded billing tables when Stripe goes live.
 
 ---
 
