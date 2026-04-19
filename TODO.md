@@ -6,7 +6,16 @@ Active tasks and up-next items. Blocked/deferred work lives in BACKLOG.md.
 
 ## Next session — start here
 
-All previous TODO items completed 2026-04-19. See BACKLOG.md for V2+ work.
+**Shipped 2026-04-19 (alpha-testing branch):**
+- Client context expansion in Step 4: client budget (over/under indicator in Step 5), payment schedule (single/50-50/milestones), tax/VAT % with breakdown in Step 5
+- PocketBase `quotes` schema: 3 new fields (`client_budget`, `payment_schedule`, `tax_rate`)
+- Dedicated tester account: `tester@lancer.local` / `1234567890` — tester mode auto-enabled on login
+- v10.1 brief changes logged to BACKLOG (credit system, EA yearly-only, 12-month billing)
+
+**Next priorities (all unblocked):**
+- Clients screen (Basic+ gate) — new page, separate task
+- Empty state + first-quote guided flow — onboarding polish
+- Onboarding trim to 3 steps (currently 6)
 
 **Active branches:**
 - `main` — v10 corrections, status rename, history page (all shipped)
