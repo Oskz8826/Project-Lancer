@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useQuote } from './QuoteContext'
 import { calculateQuote, USAGE_LABELS, USAGE_MULTIPLIERS } from '@/lib/benchmarks'
-import { CURRENCY_RATES, DISCIPLINES } from '@/lib/constants'
+import { CURRENCY_RATES, DISCIPLINES, TIER_LIMITS } from '@/lib/constants'
 import { getPocketBase } from '@/lib/pocketbase'
 import type { WorkingCurrency, UserProfile } from '@/types'
 import { jsPDF } from 'jspdf'
@@ -237,6 +237,16 @@ export default function Step5Review({ user, onSaved, onRestart }: {
     setSaving(true)
     setError('')
     try {
+      // Quota gate — only on brand-new quotes (not completing an existing draft)
+      if (!draftId) {
+        const tier = user.tier || 'free'
+        const limit = TIER_LIMITS[tier as keyof typeof TIER_LIMITS]?.quotes_per_month ?? 10
+        if ((user.quotes_used_this_month ?? 0) >= limit) {
+          setError(`Quote limit reached (${limit}/month on ${tier} plan).`)
+          setSaving(false)
+          return
+        }
+      }
       const pb = getPocketBase()
       const payload = {
         user:             user.id,
@@ -265,7 +275,7 @@ export default function Step5Review({ user, onSaved, onRestart }: {
         ai_assisted:      data.ai_assisted,
         confidence:       data.confidence || '',
         confidence_reason: data.confidence_reason || '',
-        status:           'ready',
+        status:           'pending',
         draft_step:       5,
       }
       let savedId: string

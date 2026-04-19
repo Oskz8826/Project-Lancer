@@ -8,6 +8,7 @@ import Step3RateHours from '@/components/quote/Step3RateHours'
 import Step4Extras from '@/components/quote/Step4Extras'
 import Step5Review from '@/components/quote/Step5Review'
 import { getPocketBase } from '@/lib/pocketbase'
+import { TIER_LIMITS } from '@/lib/constants'
 import type { UserProfile, WorkingCurrency, QuoteData } from '@/types'
 
 const CURRENCY_SYMBOLS: Record<WorkingCurrency, string> = { EUR: '€', GBP: '£', USD: '$' }
@@ -52,6 +53,15 @@ function BuilderPanelInner({
     setSavingDraft(true)
     setDraftError('')
     try {
+      // Quota gate — only check on first create (not updates to existing draft)
+      if (!draftId) {
+        const tier = user.tier || 'free'
+        const limit = TIER_LIMITS[tier as keyof typeof TIER_LIMITS]?.quotes_per_month ?? 10
+        if ((user.quotes_used_this_month ?? 0) >= limit) {
+          setDraftError(`Quote limit reached (${limit}/month on ${tier} plan).`)
+          return false
+        }
+      }
       const pb = getPocketBase()
       const payload = {
         user:             user.id,
@@ -75,7 +85,7 @@ function BuilderPanelInner({
         freelancer_name:  user.name || '',
         working_currency: workingCurrency,
         ai_assisted:      data.ai_assisted || false,
-        status:           'draft',
+        status:           'pending',
         draft_step:       step,
       }
       let savedId: string
