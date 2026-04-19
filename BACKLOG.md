@@ -12,6 +12,20 @@ Items approved in concept but deferred. Organized by release milestone.
 
 ---
 
+## Alpha Testing (deferred — no timeline yet)
+
+Infrastructure built on the `alpha-testing` branch. Not merging to main until alpha is ready to launch.
+
+- **Admin tester switcher** — floating pill (bottom-right) visible only to oskz.gameartist@gmail.com. Toggles `lancer_preview_as_tester` in localStorage; `useAuth` returns `tier:'tester'` override so all tier gates and AlphaBanner reflect tester view without touching PocketBase. Toggle off → real tier restored on reload.
+- **Cloudflare Tunnel** — cloudflared 2025.8.1 installed at `C:\Program Files (x86)\cloudflared\`. Scripts in `package.json` on alpha branch: `npm run tunnel:app` (port 3000), `npm run tunnel:pb` (port 8090). Update `NEXT_PUBLIC_POCKETBASE_URL` in `.env.local` to the PB tunnel URL when sharing externally.
+
+**To start an alpha session (once ready):**
+1. Merge `alpha-testing` → `main`
+2. Start PocketBase + Next.js
+3. `npm run tunnel:app` → share the `*.trycloudflare.com` URL
+
+---
+
 ## MVP — Not yet built
 
 These are in-scope for the v1 MVP per the v10 brief but not yet implemented.

@@ -43,7 +43,7 @@ type FeatureRow = {
 const FEATURES: FeatureRow[] = [
   // ── Core ──
   { section: 'Core', label: 'Disciplines',               free: '1',        basic: 'All',       pro: 'All',       max: 'All' },
-  { label: 'Quotes per month',                            free: '3',        basic: 'Unlimited', pro: 'Unlimited', max: 'Unlimited' },
+  { label: 'Quotes per month',                            free: '10',       basic: 'Unlimited', pro: 'Unlimited', max: 'Unlimited' },
   { label: 'Quote builder',                               free: true,       basic: true,        pro: true,        max: true },
   { label: 'Role-suggested hours',                        free: true,       basic: true,        pro: true,        max: true },
   { label: 'Usage rights selector',                       free: true,       basic: true,        pro: true,        max: true },
@@ -166,7 +166,7 @@ export default function PricingPage() {
               </div>
             </div>
             <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1 }}>
-              {['3 quotes / month', 'Quote builder', 'Regional benchmarks', 'Multi-currency'].map(f => (
+              {['10 quotes / month', 'Quote builder', 'Regional benchmarks', 'Multi-currency'].map(f => (
                 <li key={f} style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.55)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <span style={{ color: '#F25623', flexShrink: 0 }}>✓</span> {f}
                 </li>

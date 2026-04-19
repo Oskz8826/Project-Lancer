@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
-const FILTERS = ['all', 'pending', 'accepted', 'declined', 'revised', 'superseded', 'expired'] as const
+const FILTERS = ['all', 'pending', 'revised', 'accepted', 'declined', 'superseded', 'expired'] as const
 
 const STAGE_ORDER: Record<QuoteStatus, number> = {
   pending: 0, revised: 1, accepted: 2, declined: 3, superseded: 4, expired: 5,
@@ -329,8 +329,8 @@ export default function QuotesPage() {
                         <div style={{ width: '100%', minWidth: 0 }}>
                           {/* Progress bar */}
                           {(() => {
-                            const STAGES: QuoteStatus[] = ['pending', 'revised', 'accepted']
-                            const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 1, accepted: 2, declined: -1, superseded: -1, expired: -1 }
+                            const STAGES = [0,1,2,3,4,5]
+                            const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 2, accepted: 5, declined: -1, superseded: -1, expired: -1 }
                             const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316' }
                             const curIdx = IDX[qStatus]
                             const isRej = curIdx === -1
@@ -340,7 +340,7 @@ export default function QuotesPage() {
                                   const filled = i <= curIdx
                                   const isNext = i === curIdx + 1
                                   const bg = isRej
-                                    ? '#f87171'
+                                    ? CLRS[qStatus]
                                     : filled
                                       ? CLRS[qStatus]
                                       : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'

@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
 
-const ALL_STATUSES: QuoteStatus[] = ['pending', 'accepted', 'declined', 'revised', 'superseded', 'expired']
+const ALL_STATUSES: QuoteStatus[] = ['pending', 'revised', 'accepted', 'declined', 'superseded', 'expired']
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
 const QUOTE_EXPIRY_DAYS = 30
 
@@ -62,6 +62,7 @@ export default function HistoryPage() {
   const [selected, setSelected]           = useState<Set<string>>(new Set())
   const [bulkOpen, setBulkOpen]           = useState(false)
   const [bulkUpdating, setBulkUpdating]   = useState(false)
+  const [colWidths, setColWidths]         = useState({ client: 90, discipline: 90, price: 80, status: 80, created: 80 })
 
   const fetchQuotes = useCallback((userId: string) => {
     setQuotesReady(false)
@@ -114,6 +115,24 @@ export default function HistoryPage() {
         }} />
       </div>
     )
+  }
+
+  const gridCols = `32px 1fr ${colWidths.client}px ${colWidths.discipline}px ${colWidths.price}px ${colWidths.status}px ${colWidths.created}px`
+
+  function startResize(e: React.MouseEvent, col: keyof typeof colWidths) {
+    e.preventDefault()
+    e.stopPropagation()
+    const startX = e.clientX
+    const startW = colWidths[col]
+    function onMove(ev: MouseEvent) {
+      setColWidths(prev => ({ ...prev, [col]: Math.max(50, startW + ev.clientX - startX) }))
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
   }
 
   // Free tier: upgrade wall
@@ -431,41 +450,52 @@ export default function HistoryPage() {
         ) : (
           <div style={{
             background: 'rgba(255,255,255,0.02)', borderRadius: '12px',
-            border: '0.5px solid rgba(255,255,255,0.06)', overflow: 'hidden',
+            border: '0.5px solid rgba(255,255,255,0.06)',
           }}>
             {/* Header */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '32px 1fr 90px 90px 80px 80px 80px',
+              gridTemplateColumns: gridCols,
               padding: '8px 14px',
               borderBottom: '0.5px solid rgba(255,255,255,0.05)',
               fontSize: '10px', fontWeight: 500, color: 'rgba(255,255,255,0.3)',
               gap: '8px', alignItems: 'center',
+              userSelect: 'none',
             }}>
+              {/* Select-all — full cell is the click target */}
               <div
                 onClick={toggleSelectAll}
-                style={{
-                  width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer',
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', height: '100%', minHeight: '28px' }}
+              >
+                <div style={{
+                  width: '14px', height: '14px', borderRadius: '4px', flexShrink: 0,
                   border: `1.5px solid ${allChecked || someChecked ? '#F25623' : 'rgba(255,255,255,0.2)'}`,
                   background: allChecked ? '#F25623' : 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}
-              >
-                {(allChecked || someChecked) && (
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-                    {allChecked
-                      ? <path d="M20 6L9 17l-5-5"/>
-                      : <line x1="5" y1="12" x2="19" y2="12"/>}
-                  </svg>
-                )}
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {(allChecked || someChecked) && (
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                      {allChecked ? <path d="M20 6L9 17l-5-5"/> : <line x1="5" y1="12" x2="19" y2="12"/>}
+                    </svg>
+                  )}
+                </div>
               </div>
               <div>Project</div>
-              <div>Client</div>
-              <div>Discipline</div>
-              <div>Price range</div>
-              <div>Status</div>
-              <div>Created</div>
-              <div style={{ display: 'none' }}>Expires</div>
+              {(['client', 'discipline', 'price', 'status', 'created'] as const).map(col => (
+                <div key={col} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <span>{col === 'client' ? 'Client' : col === 'discipline' ? 'Discipline' : col === 'price' ? 'Price range' : col === 'status' ? 'Status' : 'Created'}</span>
+                  <div
+                    onMouseDown={e => startResize(e, col)}
+                    style={{
+                      position: 'absolute', right: 0, top: 0, bottom: 0, width: '6px',
+                      cursor: 'col-resize', zIndex: 10,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    <div style={{ width: '1px', height: '60%', background: 'rgba(255,255,255,0.18)', borderRadius: '1px' }} />
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Rows */}
@@ -485,7 +515,7 @@ export default function HistoryPage() {
                   onClick={() => handleSelectQuote(q.id)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '32px 1fr 90px 90px 80px 80px 80px',
+                    gridTemplateColumns: gridCols,
                     padding: '10px 14px', gap: '8px', alignItems: 'center',
                     borderBottom: i < filteredQuotes.length - 1 ? '0.5px solid rgba(255,255,255,0.04)' : 'none',
                     background: isSelected
@@ -499,21 +529,23 @@ export default function HistoryPage() {
                   onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.02)' }}
                   onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = isExpiring ? 'rgba(249,115,22,0.04)' : 'transparent' }}
                 >
-                  {/* Checkbox */}
+                  {/* Checkbox — full cell is the click target */}
                   <div
                     onClick={e => toggleSelect(q.id, e)}
-                    style={{
-                      width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer', flexShrink: 0,
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', alignSelf: 'stretch' }}
+                  >
+                    <div style={{
+                      width: '14px', height: '14px', borderRadius: '4px', flexShrink: 0,
                       border: `1.5px solid ${isChecked ? '#F25623' : 'rgba(255,255,255,0.15)'}`,
                       background: isChecked ? '#F25623' : 'transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                  >
-                    {isChecked && (
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-                        <path d="M20 6L9 17l-5-5"/>
-                      </svg>
-                    )}
+                    }}>
+                      {isChecked && (
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                          <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                      )}
+                    </div>
                   </div>
 
                   {/* Project name */}
