@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getPocketBase } from '@/lib/pocketbase'
@@ -16,9 +16,21 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   accepted:   { bg: 'rgba(34,197,94,0.1)',    text: '#4ade80',               border: 'rgba(34,197,94,0.25)',   label: 'Accepted' },
   declined:   { bg: 'rgba(239,68,68,0.1)',    text: '#f87171',               border: 'rgba(239,68,68,0.25)',   label: 'Declined' },
   revised:    { bg: 'rgba(59,130,246,0.1)',   text: '#60a5fa',               border: 'rgba(59,130,246,0.25)',  label: 'Revised' },
-  superseded: { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.12)', label: 'Superseded' },
+  superseded: { bg: 'rgba(167,139,250,0.1)',  text: '#a78bfa',               border: 'rgba(167,139,250,0.25)', label: 'Superseded' },
   expired:    { bg: 'rgba(249,115,22,0.08)',  text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
+
+const DRAFT_COLORS = { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.38)', border: 'rgba(255,255,255,0.12)', label: 'Draft' }
+
+const LEGEND_ITEMS = [
+  { color: 'rgba(255,255,255,0.38)', label: 'Draft',      desc: 'In progress — not sent yet' },
+  { color: '#facc15',               label: 'Pending',    desc: 'Sent to client, awaiting response' },
+  { color: '#60a5fa',               label: 'Revised',    desc: 'Updated version submitted after feedback' },
+  { color: '#4ade80',               label: 'Accepted',   desc: 'Client confirmed — job is yours' },
+  { color: '#f87171',               label: 'Declined',   desc: 'Client passed' },
+  { color: '#f97316',               label: 'Expired',    desc: 'No response after 30 days' },
+  { color: '#a78bfa',               label: 'Superseded', desc: 'Replaced by a newer quote' },
+]
 
 const FILTERS = ['all', 'pending', 'revised', 'accepted', 'declined', 'superseded', 'expired'] as const
 
@@ -30,7 +42,7 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-export default function QuotesPage() {
+function QuotesPage() {
   const { user, loading, refreshUser } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -44,6 +56,7 @@ export default function QuotesPage() {
   const [panelKey, setPanelKey]         = useState(0)
   const [sortBy, setSortBy]             = useState<'newest' | 'name' | 'stage'>('newest')
   const [sortOpen, setSortOpen]         = useState(false)
+  const [legendOpen, setLegendOpen]     = useState(false)
 
   const fetchQuotes = useCallback((userId: string, filter: string) => {
     setQuotesReady(false)
@@ -200,6 +213,44 @@ export default function QuotesPage() {
             >Stage</button>
           </div>
 
+          {/* Status legend button */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <button
+              onClick={() => setLegendOpen(o => !o)}
+              title="Status guide"
+              style={{
+                width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: legendOpen ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)',
+                border: '0.5px solid rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontWeight: 600, cursor: 'pointer', outline: 'none',
+              }}
+            >?</button>
+            {legendOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setLegendOpen(false)} />
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 50,
+                  background: '#16161e', border: '0.5px solid rgba(255,255,255,0.12)',
+                  borderRadius: '10px', padding: '10px 0', minWidth: '230px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                }}>
+                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.07em', padding: '0 12px 8px' }}>
+                    Quote statuses
+                  </div>
+                  {LEGEND_ITEMS.map(item => (
+                    <div key={item.label} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '5px 12px' }}>
+                      <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: item.color, flexShrink: 0, marginTop: '3px' }} />
+                      <div>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{item.label}</div>
+                        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginTop: '1px' }}>{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Sort dropdown */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <button
@@ -319,7 +370,8 @@ export default function QuotesPage() {
                   {sortedQuotes.map((q, i) => {
                     const disciplineLabel = DISCIPLINES.find(d => d.value === q.discipline)?.label ?? q.discipline
                     const qStatus         = (q.status || 'pending') as QuoteStatus
-                    const sc              = STATUS_COLORS[qStatus]
+                    const isDraftQuote    = qStatus === 'pending' && !q.quote_min
+                    const sc              = isDraftQuote ? DRAFT_COLORS : STATUS_COLORS[qStatus]
                     const isSelected      = q.id === selectedId && panelOpen
                     const isPending       = qStatus === 'pending'
                     return (
@@ -339,21 +391,20 @@ export default function QuotesPage() {
                         <div style={{ width: '100%', minWidth: 0 }}>
                           {/* Progress bar */}
                           {(() => {
-                            const STAGES = [0,1,2,3,4,5]
-                            const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 2, accepted: 5, declined: -1, superseded: -1, expired: -1 }
-                            const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316' }
-                            const curIdx = IDX[qStatus]
-                            const isRej = curIdx === -1
+                            const STAGES = [0,1,2,3]
+                            const IDX: Record<QuoteStatus, number> = { pending: 1, revised: 2, accepted: 3, declined: 3, superseded: 3, expired: 3 }
+                            const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: '#a78bfa', expired: '#f97316' }
+                            const isDraft = qStatus === 'pending' && !q.quote_min
+                            const curIdx = isDraft ? 0 : IDX[qStatus]
+                            const barColor = isDraft ? 'rgba(255,255,255,0.38)' : CLRS[qStatus]
                             return (
                               <div style={{ display: 'flex', gap: '3px', marginBottom: '7px', width: '25%' }}>
                                 {STAGES.map((s, i) => {
                                   const filled = i <= curIdx
                                   const isNext = i === curIdx + 1
-                                  const bg = isRej
-                                    ? CLRS[qStatus]
-                                    : filled
-                                      ? CLRS[qStatus]
-                                      : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
+                                  const bg = filled
+                                    ? barColor
+                                    : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
                                   return <div key={s} style={{ flex: 1, height: '3px', borderRadius: '2px', background: bg }} />
                                 })}
                               </div>
@@ -453,3 +504,5 @@ export default function QuotesPage() {
       </div>
   )
 }
+
+export default function QuotesPageWrapper() { return <Suspense><QuotesPage /></Suspense> }

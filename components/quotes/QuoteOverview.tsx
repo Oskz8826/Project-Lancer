@@ -13,9 +13,11 @@ const STATUS_COLORS: Record<QuoteStatus, { bg: string; text: string; border: str
   accepted:   { bg: 'rgba(34,197,94,0.12)',   text: '#4ade80',               border: 'rgba(34,197,94,0.3)',    label: 'Accepted' },
   declined:   { bg: 'rgba(239,68,68,0.12)',   text: '#f87171',               border: 'rgba(239,68,68,0.3)',    label: 'Declined' },
   revised:    { bg: 'rgba(59,130,246,0.12)',  text: '#60a5fa',               border: 'rgba(59,130,246,0.3)',   label: 'Revised' },
-  superseded: { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.12)', label: 'Superseded' },
+  superseded: { bg: 'rgba(167,139,250,0.1)',  text: '#a78bfa',               border: 'rgba(167,139,250,0.25)', label: 'Superseded' },
   expired:    { bg: 'rgba(249,115,22,0.1)',   text: '#f97316',               border: 'rgba(249,115,22,0.25)',  label: 'Expired' },
 }
+
+const DRAFT_COLORS = { bg: 'rgba(255,255,255,0.06)', text: 'rgba(255,255,255,0.38)', border: 'rgba(255,255,255,0.12)', label: 'Draft' }
 
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', GBP: '£', USD: '$' }
 const CONFIDENCE_COLORS: Record<string, string> = { High: '#4ade80', Medium: '#facc15', Low: '#f87171' }
@@ -60,7 +62,8 @@ export default function QuoteOverview({
   const [copied, setCopied]        = useState(false)
 
   const disciplineLabel = DISCIPLINES.find(d => d.value === quote.discipline)?.label ?? quote.discipline
-  const colors          = STATUS_COLORS[status]
+  const isDraft         = status === 'pending' && !quote.quote_min
+  const colors          = isDraft ? DRAFT_COLORS : STATUS_COLORS[status]
 
   const calc = quote.ai_assisted
     ? {
@@ -386,21 +389,20 @@ export default function QuoteOverview({
 
         {/* Progress bar */}
         {(() => {
-          const STAGES = [0,1,2,3,4,5]
-          const IDX: Record<QuoteStatus, number> = { pending: 0, revised: 2, accepted: 5, declined: -1, superseded: -1, expired: -1 }
-          const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: 'rgba(255,255,255,0.4)', expired: '#f97316' }
-          const curIdx = IDX[status]
-          const isTerminal = curIdx === -1
+          const STAGES = [0,1,2,3]
+          const IDX: Record<QuoteStatus, number> = { pending: 1, revised: 2, accepted: 3, declined: 3, superseded: 3, expired: 3 }
+          const CLRS: Record<QuoteStatus, string> = { pending: '#facc15', revised: '#60a5fa', accepted: '#4ade80', declined: '#f87171', superseded: '#a78bfa', expired: '#f97316' }
+          const isDraft = status === 'pending' && !quote.quote_min
+          const curIdx = isDraft ? 0 : IDX[status]
+          const barColor = isDraft ? 'rgba(255,255,255,0.38)' : CLRS[status]
           return (
             <div style={{ display: 'flex', gap: '4px', marginBottom: '14px' }}>
               {STAGES.map((s, i) => {
-                const filled = !isTerminal && i <= curIdx
-                const isNext = !isTerminal && i === curIdx + 1
-                const bg = isTerminal
-                  ? CLRS[status]
-                  : filled
-                    ? CLRS[status]
-                    : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
+                const filled = i <= curIdx
+                const isNext = i === curIdx + 1
+                const bg = filled
+                  ? barColor
+                  : isNext ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'
                 return <div key={s} style={{ flex: 1, height: '3px', borderRadius: '2px', background: bg }} />
               })}
             </div>

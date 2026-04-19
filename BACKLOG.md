@@ -66,6 +66,8 @@ Full state machine replacing current draft/ready/sent/accepted/rejected/complete
 
 Requires: `parent_quote_id` self-relation on quotes, `accepted_value` field, daily expiry cron job, revision flow UI.
 
+**Current gap (noted 2026-04-19):** The "Revised" status is currently settable via the status dropdown in QuoteOverview, but there's no actual revision flow. Setting it manually is a workaround — there's no child quote spawned, no parent link, no continuity. When the status machine is implemented, the dropdown option for "Revised" should be replaced by a dedicated "Revise" button that triggers the child-quote flow. Until then, users manually marking quotes as Revised is misleading.
+
 ### Onboarding — trim to 3 steps (v10 §6.1)
 Currently 6 steps. v10 specifies 3: (1) email + password, (2) role + discipline, (3) working currency. Location and additional skills collected at first-quote time, not blocking onboarding.
 
