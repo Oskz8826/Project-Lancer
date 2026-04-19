@@ -357,8 +357,8 @@ export default function SettingsPage() {
 
                 <AccountRow
                   label="AI addon"
-                  value={user.ai_addon ? 'Active' : 'Not active'}
-                  valueColor={user.ai_addon ? '#4ade80' : undefined}
+                  value={user.ai_addon ? 'Coming soon' : 'Not subscribed'}
+                  valueColor={user.ai_addon ? '#fbbf24' : undefined}
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
