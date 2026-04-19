@@ -1,11 +1,11 @@
 'use client'
 
-import { useAuth, ADMIN_EMAIL, PREVIEW_KEY } from '@/hooks/useAuth'
+import { useAuth, TESTER_EMAILS, PREVIEW_KEY } from '@/hooks/useAuth'
 
 export default function TesterSwitcher() {
   const { user, previewActive } = useAuth()
 
-  if (!user || user.email !== ADMIN_EMAIL) return null
+  if (!user || !TESTER_EMAILS.includes(user.email)) return null
 
   function toggle() {
     const next = !previewActive

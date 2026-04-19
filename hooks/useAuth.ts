@@ -6,6 +6,7 @@ import { pb } from '@/lib/pocketbase'
 import type { UserProfile } from '@/types'
 
 const ADMIN_EMAIL = 'oskz.gameartist@gmail.com'
+const TESTER_EMAILS = [ADMIN_EMAIL, 'tester@lancer.local']
 const PREVIEW_KEY = 'lancer_preview_as_tester'
 
 export function useAuth() {
@@ -23,7 +24,13 @@ export function useAuth() {
     // current auth state, avoiding a race between PocketBase localStorage
     // restore and the effect running.
     const unsub = pb.authStore.onChange((_, model) => {
-      setUser(model ? (model as unknown as UserProfile) : null)
+      const profile = model ? (model as unknown as UserProfile) : null
+      // Auto-enable tester preview for the shared tester account
+      if (profile?.email === 'tester@lancer.local' && typeof window !== 'undefined') {
+        localStorage.setItem(PREVIEW_KEY, 'true')
+        setPreviewActive(true)
+      }
+      setUser(profile)
       setLoading(false)
     }, true)
 
@@ -58,11 +65,11 @@ export function useAuth() {
     } catch { /* ignore */ }
   }
 
-  const effectiveUser = user && previewActive && user.email === ADMIN_EMAIL
+  const effectiveUser = user && previewActive && TESTER_EMAILS.includes(user.email)
     ? { ...user, tier: 'tester' as const }
     : user
 
   return { user: effectiveUser, loading, logout, refreshUser, previewActive }
 }
 
-export { ADMIN_EMAIL, PREVIEW_KEY }
+export { ADMIN_EMAIL, TESTER_EMAILS, PREVIEW_KEY }
