@@ -75,17 +75,22 @@ export default function QuotesPage() {
     fetchQuotes(user.id, activeFilter)
   }, [user?.id, activeFilter, fetchQuotes])
 
+  // Open builder immediately on ?new=1 — doesn't need quotes list
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setSelectedId(null)
+      setIsEditing(true)
+      setPanelKey(k => k + 1)
+      setPanelOpen(true)
+    }
+  }, [searchParams])
+
   useEffect(() => {
     if (!quotesReady) return
     const openId = searchParams.get('open')
     if (openId) {
       setSelectedId(openId)
       setIsEditing(false)
-      setPanelOpen(true)
-    } else if (searchParams.get('new') === '1') {
-      setSelectedId(null)
-      setIsEditing(true)
-      setPanelKey(k => k + 1)
       setPanelOpen(true)
     }
   }, [quotesReady, searchParams])
