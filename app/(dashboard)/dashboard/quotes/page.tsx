@@ -82,6 +82,11 @@ export default function QuotesPage() {
       setSelectedId(openId)
       setIsEditing(false)
       setPanelOpen(true)
+    } else if (searchParams.get('new') === '1') {
+      setSelectedId(null)
+      setIsEditing(true)
+      setPanelKey(k => k + 1)
+      setPanelOpen(true)
     }
   }, [quotesReady, searchParams])
 

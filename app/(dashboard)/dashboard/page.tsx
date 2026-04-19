@@ -166,7 +166,7 @@ export default function DashboardPage() {
                 fontSize: '11px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer',
               }}>History</div>
             </Link>
-            <Link href="/dashboard/quotes/new" style={{ textDecoration: 'none' }}>
+            <Link href="/dashboard/quotes?new=1" style={{ textDecoration: 'none' }}>
               <div style={{
                 padding: '5px 12px', borderRadius: '7px',
                 background: 'rgba(242,86,35,0.15)', border: '0.5px solid rgba(242,86,35,0.4)',
@@ -234,7 +234,7 @@ export default function DashboardPage() {
 
           {/* Action row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
-            <Link href="/dashboard/quotes/new" style={{ textDecoration: 'none' }}>
+            <Link href="/dashboard/quotes?new=1" style={{ textDecoration: 'none' }}>
               <div style={{
                 borderRadius: '10px', padding: '11px 14px',
                 fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px',
@@ -293,7 +293,7 @@ export default function DashboardPage() {
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>No quotes yet</div>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
                 Create your first quote to get started.{' '}
-                <Link href="/dashboard/quotes/new" style={{ color: '#f78560', textDecoration: 'none' }}>
+                <Link href="/dashboard/quotes?new=1" style={{ color: '#f78560', textDecoration: 'none' }}>
                   New quote →
                 </Link>
               </div>
