@@ -37,6 +37,7 @@ export type ExperienceLevel = 'Junior' | 'Mid' | 'Senior' | 'Veteran'
 export type ComplexityTier = 'Simple' | 'Mid' | 'Complex' | 'Hero'
 export type UsageRights = 'Personal' | 'Indie' | 'Commercial' | 'AAA' | 'Exclusive'
 export type RevisionType = 'Minor' | 'Standard' | 'Major'
+export type PaymentSchedule = 'single' | 'half_half' | 'milestone'
 
 export interface QuoteData {
   // Step 1
@@ -60,6 +61,9 @@ export interface QuoteData {
   rush_job: boolean
   project_name: string
   client_name: string
+  client_budget: number
+  payment_schedule: PaymentSchedule
+  tax_rate: number
   notes: string
   client_brief: string
   // Step 5 (computed on save)

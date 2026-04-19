@@ -57,6 +57,14 @@ export default function Step5Review({ user, onSaved, onRestart }: {
   const disciplineLabel = DISCIPLINES.find(d => d.value === data.discipline)?.label ?? data.discipline
   const isFree          = user.tier === 'free'
 
+  const taxRate      = data.tax_rate ?? 0
+  const taxMin       = calc.quote_min * (taxRate / 100)
+  const taxMax       = calc.quote_max * (taxRate / 100)
+  const totalMin     = calc.quote_min + taxMin
+  const totalMax     = calc.quote_max + taxMax
+  const clientBudget = data.client_budget ?? 0
+  const overBudget   = clientBudget > 0 && calc.quote_min > clientBudget
+
   function buildSummaryText() {
     return [
       `Quote — ${disciplineLabel} · ${data.asset_type} · ${data.complexity_tier}`,
@@ -265,6 +273,9 @@ export default function Step5Review({ user, onSaved, onRestart }: {
         rush_job:         data.rush_job,
         project_name:     data.project_name || '',
         client_name:      data.client_name || '',
+        client_budget:    data.client_budget || 0,
+        payment_schedule: data.payment_schedule || 'single',
+        tax_rate:         data.tax_rate || 0,
         freelancer_name:  user.name || '',
         notes:            data.notes,
         client_brief:     data.client_brief,
@@ -355,6 +366,25 @@ export default function Step5Review({ user, onSaved, onRestart }: {
         )}
       </div>
 
+      {/* Client budget indicator */}
+      {clientBudget > 0 && (
+        <div style={{
+          padding: '10px 14px', borderRadius: '10px', fontSize: '12px',
+          background: overBudget ? 'rgba(251,191,36,0.08)' : 'rgba(74,222,128,0.08)',
+          border: `1px solid ${overBudget ? 'rgba(251,191,36,0.25)' : 'rgba(74,222,128,0.25)'}`,
+          color: overBudget ? '#fbbf24' : '#4ade80',
+          display: 'flex', alignItems: 'center', gap: '8px',
+        }}>
+          <span style={{ fontSize: '14px' }}>{overBudget ? '⚠' : '✓'}</span>
+          <span>
+            {overBudget
+              ? `Quote starts at ${fmt(calc.quote_min, currency, symbol)} — above the client's budget of ${fmt(clientBudget, currency, symbol)}`
+              : `Quote of ${fmt(calc.quote_min, currency, symbol)}–${fmt(calc.quote_max, currency, symbol)} is within the client's budget of ${fmt(clientBudget, currency, symbol)}`
+            }
+          </span>
+        </div>
+      )}
+
       {/* Breakdown */}
       <div style={{
         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
@@ -388,6 +418,15 @@ export default function Step5Review({ user, onSaved, onRestart }: {
             label: `Usage (${USAGE_LABELS[data.usage_rights ?? 'Indie']})`,
             value: data.usage_rights === 'Personal' ? 'base rate' : `×${USAGE_MULTIPLIERS[data.usage_rights ?? 'Indie'].toFixed(2)}`,
           },
+          ...(data.payment_schedule && data.payment_schedule !== 'single' ? [{
+            label: 'Payment',
+            value: data.payment_schedule === 'half_half' ? '50% upfront / 50% delivery' : 'Milestones (see notes)',
+          }] : []),
+          ...(taxRate > 0 ? [
+            { label: 'Subtotal', value: `${fmt(calc.quote_min, currency, symbol)} – ${fmt(calc.quote_max, currency, symbol)}` },
+            { label: `Tax / VAT (${taxRate}%)`, value: `+${fmt(taxMin, currency, symbol)} – +${fmt(taxMax, currency, symbol)}` },
+            { label: 'Total incl. tax', value: `${fmt(totalMin, currency, symbol)} – ${fmt(totalMax, currency, symbol)}` },
+          ] : []),
         ].map(row => (
           <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>{row.label}</span>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useQuote } from './QuoteContext'
 import { calculateQuote, USAGE_LABELS, USAGE_MULTIPLIERS } from '@/lib/benchmarks'
 import { CURRENCY_RATES } from '@/lib/constants'
-import type { UsageRights, RevisionType, WorkingCurrency } from '@/types'
+import type { UsageRights, RevisionType, WorkingCurrency, PaymentSchedule } from '@/types'
 
 const REVISION_TYPES: { value: RevisionType; label: string; desc: string }[] = [
   { value: 'Minor',    label: 'Minor',    desc: 'Tweaks & small adjustments' },
@@ -25,12 +25,15 @@ export default function Step4Extras({ workingCurrency, currencySymbol }: {
 }) {
   const { data, next, back } = useQuote()
 
-  const [revRounds,   setRevRounds]   = useState(data.revision_rounds ?? 2)
-  const [revType,     setRevType]     = useState<RevisionType>(data.revision_type ?? 'Standard')
-  const [usage,       setUsage]       = useState<UsageRights>(data.usage_rights ?? 'Indie')
-  const [rush,        setRush]        = useState(data.rush_job ?? false)
-  const [clientName,  setClientName]  = useState(data.client_name ?? '')
-  const [notes,       setNotes]       = useState(data.notes ?? '')
+  const [revRounds,       setRevRounds]       = useState(data.revision_rounds ?? 2)
+  const [revType,         setRevType]         = useState<RevisionType>(data.revision_type ?? 'Standard')
+  const [usage,           setUsage]           = useState<UsageRights>(data.usage_rights ?? 'Indie')
+  const [rush,            setRush]            = useState(data.rush_job ?? false)
+  const [clientName,      setClientName]      = useState(data.client_name ?? '')
+  const [clientBudget,    setClientBudget]    = useState(data.client_budget ?? 0)
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentSchedule>(data.payment_schedule ?? 'single')
+  const [taxRate,         setTaxRate]         = useState(data.tax_rate ?? 0)
+  const [notes,           setNotes]           = useState(data.notes ?? '')
 
   const preview = calculateQuote({
     hours_min: data.hours_min ?? 0,
@@ -43,7 +46,11 @@ export default function Step4Extras({ workingCurrency, currencySymbol }: {
   })
 
   function handleNext() {
-    next({ revision_rounds: revRounds, revision_type: revType, usage_rights: usage, rush_job: rush, client_name: clientName, notes })
+    next({
+      revision_rounds: revRounds, revision_type: revType, usage_rights: usage, rush_job: rush,
+      client_name: clientName, client_budget: clientBudget, payment_schedule: paymentSchedule,
+      tax_rate: taxRate, notes,
+    })
   }
 
   return (
@@ -176,6 +183,87 @@ export default function Step4Extras({ workingCurrency, currencySymbol }: {
             fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontFamily: 'inherit', outline: 'none',
           }}
         />
+      </div>
+
+      {/* Client budget */}
+      <div>
+        <div className="label" style={{ marginBottom: '8px' }}>Client budget (optional)</div>
+        <div style={{ position: 'relative' }}>
+          <span style={{
+            position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
+            fontSize: '13px', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none',
+          }}>{currencySymbol}</span>
+          <input
+            type="number"
+            min={0}
+            value={clientBudget || ''}
+            onChange={e => setClientBudget(Number(e.target.value) || 0)}
+            placeholder="0"
+            style={{
+              width: '100%', padding: '10px 12px 10px 26px', borderRadius: '8px', boxSizing: 'border-box',
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+              fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontFamily: 'inherit', outline: 'none',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Payment schedule */}
+      <div>
+        <div className="label" style={{ marginBottom: '8px' }}>Payment schedule</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+          {([
+            { value: 'single',    label: 'Single',    sub: 'Full on delivery' },
+            { value: 'half_half', label: '50 / 50',   sub: 'Upfront + delivery' },
+            { value: 'milestone', label: 'Milestones', sub: 'Custom schedule' },
+          ] as { value: PaymentSchedule; label: string; sub: string }[]).map(opt => {
+            const selected = paymentSchedule === opt.value
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setPaymentSchedule(opt.value)}
+                style={{
+                  padding: '10px 8px', borderRadius: '8px', cursor: 'pointer',
+                  background: selected ? 'rgba(242,86,35,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${selected ? '#F25623' : 'rgba(255,255,255,0.08)'}`,
+                  color: selected ? '#fff' : 'rgba(255,255,255,0.65)',
+                  fontWeight: selected ? 600 : 400,
+                  fontSize: '12px', transition: 'all 0.15s', textAlign: 'center',
+                }}
+              >
+                <div>{opt.label}</div>
+                <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>{opt.sub}</div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Tax / VAT */}
+      <div>
+        <div className="label" style={{ marginBottom: '8px' }}>Tax / VAT % (optional)</div>
+        <div style={{ position: 'relative' }}>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            value={taxRate || ''}
+            onChange={e => setTaxRate(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
+            placeholder="0"
+            style={{
+              width: '100%', padding: '10px 36px 10px 12px', borderRadius: '8px', boxSizing: 'border-box',
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+              fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontFamily: 'inherit', outline: 'none',
+            }}
+          />
+          <span style={{
+            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+            fontSize: '13px', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none',
+          }}>%</span>
+        </div>
+        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', marginTop: '4px' }}>
+          EU B2B reverse charge? Set to 0 and mention in notes.
+        </div>
       </div>
 
       {/* Notes */}
