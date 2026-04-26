@@ -21,6 +21,8 @@ Brief updated 2026-04-19. Three changes landed:
 2. **EA discount is yearly-only** — monthly always full price. Cancellation preserves EA status; only explicit surrender or full account deletion forfeits it permanently.
 3. **12 months, not 14** — effective monthly prices: Basic €3.20, Pro €6.83, Max €17.28. Recalculate any hardcoded billing tables when Stripe goes live.
 
+*Note 2026-04-23: Major frontend rework promoted from here to front of TODO.md — see "Frontend Rework — Major Priority" in TODO.md.*
+
 ---
 
 ## Alpha Testing (deferred — no timeline yet)
