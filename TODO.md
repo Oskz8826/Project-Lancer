@@ -4,11 +4,25 @@ Active tasks and up-next items. Blocked/deferred work lives in BACKLOG.md.
 
 ---
 
-## Next session — start here
+## Frontend rebuild — in progress
 
-- **Admin tester switcher** — floating button on `alpha-testing` branch so Oskar can preview tester experience without changing his PocketBase tier. Build on branch, not main.
-- **Code corrections (v10)** — knock out the four items below; all are small targeted fixes, start with free tier quota (one line)
-- **Cloudflare Tunnel** — coordinate with Oskar each session alpha opens. Port 3000 (Next.js) + port 8090 (PocketBase). Setup docs in next session.
+**Branch:** `frontend-rebuild` (cut from `main` 2026-04-26, tag `pre-frontend-rebuild` marks the cut point)
+**Dev port:** `:3001` (parallel to old frontend on `:3000`)
+**Plan file:** `~/.claude/plans/hey-cortana-joyful-token.md` — 16 milestones (M0–M15), iteration gate between each.
+**Meta-plan:** [REBUILD-PLAN.md](REBUILD-PLAN.md) on `alpha-testing` — locked decisions, alpha integration strategy.
+**Backup:** `D:/0. Claude Projects/_backups/lancer-pre-frontend-rebuild-2026-04-26/` — pb_data + .env.local snapshot.
+
+### Next session — start here
+
+**M0 complete.** ✓ Branch cut, tagged, backup, plan amended.
+
+**Up next: M1 — Token foundation.** Replace `app/globals.css` `:root` with the full design-ref token set (8 colors + spacing 1–20 + radii xs–pill + shadow recipes). Map to Tailwind v4 `@theme inline`. Load Instrument Sans + JetBrains Mono via `next/font/google`. Mechanical sweep of hardcoded `#F25623` / `#0D0D12` / `#131318` literals → `var(--token)`. Read full M1 deliverables in plan file before starting.
+
+### Branch protocol
+
+- Every milestone has an iteration gate — Oskar reviews before next milestone starts.
+- `alpha-testing` keeps running on `:3000` for live tester sessions throughout the rebuild — its frontend features get rebuilt fresh on the new frontend after `frontend-rebuild` merges to main.
+- v10 backend corrections below (free tier quota, rush multiplier, usage rights, AI confidence) are independent of the frontend rebuild and should land on `main` or `alpha-testing` directly when addressed — NOT in the rebuild branch.
 
 ---
 
