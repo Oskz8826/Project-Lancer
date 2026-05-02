@@ -16,7 +16,10 @@ Active tasks and up-next items. Blocked/deferred work lives in BACKLOG.md.
 
 **M0 complete.** ✓ Branch cut, tagged, backup, plan amended.
 
-**Up next: M1 — Token foundation.** Replace `app/globals.css` `:root` with the full design-ref token set (8 colors + spacing 1–20 + radii xs–pill + shadow recipes). Map to Tailwind v4 `@theme inline`. Load Instrument Sans + JetBrains Mono via `next/font/google`. Mechanical sweep of hardcoded `#F25623` / `#0D0D12` / `#131318` literals → `var(--token)`. Read full M1 deliverables in plan file before starting.
+**Two threads to pick from:**
+
+1. **Continue rebuild — M1 Token foundation.** Replace `app/globals.css` `:root` with the full design-ref token set (8 colors + spacing 1–20 + radii xs–pill + shadow recipes). Map to Tailwind v4 `@theme inline`. Load Instrument Sans + JetBrains Mono via `next/font/google`. Mechanical sweep of hardcoded `#F25623` / `#0D0D12` / `#131318` literals → `var(--token)`. Read full M1 deliverables in plan file before starting.
+2. **Decide auth architecture split (raised 2026-05-02).** Current `users` mixes auth + Lancer-specific fields. See "Design decisions needed → Auth architecture split" below — three options A/B/C, lean is B.
 
 ### Branch protocol
 
@@ -41,17 +44,28 @@ These are gaps between the current build and what v10 specifies. Small, targeted
 
 - **History page** — placeholder at `/dashboard/history`. v10 §7 says: saved quotes + estimates, status tags, client filter, date filter, sort, expiring-quote highlight. Needs design sign-off before building.
 - **Quote status rename** — v10 changes status names entirely: `pending / accepted / declined / revised / superseded / expired` (currently `draft / ready / sent / accepted / rejected / completed`). This touches the DB schema, QuoteOverview, quotes page, and history. Decide when to migrate.
+- **Auth architecture split (raised 2026-05-02)** — `pb_schema.json` `users` collection mixes auth primitives with 7 Lancer-specific fields (`role`, `primary_discipline`, `additional_skills`, `working_currency`, `tier`, `ai_addon`, `quotes_used_this_month`). `region`/`country` are gray-area. Three options:
+  - **A. Defer.** Keep `users` as-is. Migrate when product #2 actually needs shared auth. Zero work now, more pain later — but you'd know product #2's needs by then.
+  - **B. Split now, single PocketBase.** Restructure into `users` (NordBit-level auth) + new `lancer_profiles` (relation to `users.id`) inside same Zone.ee VPS PB. Future products add `*_profiles` collections.
+  - **C. Split now, separate auth service.** Stand up `auth.nordbit.ee` (PB or otherwise), Lancer reads via API/JWT. Heaviest lift, cleanest separation.
+  - **Lean:** B — Lancer is currently the only product needing user auth (NordBit site has none, RTS has no auth surface yet), but splitting *before* Stripe + paying users land costs less than after. A is defensible if M1+ ships first. Decision pending.
 
 ---
 
-## Hosting
+## Hosting (locked 2026-04-27 — Option B, all-Estonian backend)
 
-- **Switch Oracle Cloud → Hetzner Cloud CX22** — Oracle Cloud Free VM rejected in v10 (reclamation risk, no SLA). Hetzner CX22 recommended: €4.50/mo, 2 vCPU / 4GB, EU residency. Provision account + VM before deploy.
+- **Domain:** `nordbit.ee` registered at Zone.ee (single domain — Lancer is a subdomain, no separate `lancer.ee`).
+- **DNS:** managed at Cloudflare (free, proxy + DDoS as bonus).
+- **Frontend:** Cloudflare Pages → `lancer.nordbit.ee`. Next.js via `@cloudflare/next-on-pages` adapter — API routes constrained to edge runtime.
+- **Backend:** Zone.ee VPS → `api.lancer.nordbit.ee`. Runs PocketBase Go binary + SQLite.
+- **Cost:** ~€11/mo total (€1/mo amortized domain + €10/mo VPS).
+- **Override note:** prior plan was Hetzner Cloud CX22 (€4.50/mo). Switched to Zone.ee VPS for Estonian infrastructure / locality story (+€5/mo accepted). Oracle Cloud Free VM was rejected earlier (reclamation risk, no SLA).
 
 ---
 
-## Blocked (waiting on Lancer OÜ registration)
+## Blocked (waiting on NordBit OÜ registration)
 
 - Stripe integration + checkout page
 - Resend.com email integration
 - ANTHROPIC_API_KEY (needs separate API billing, not Claude subscription)
+- Hosting account ownership transfer (currently personal → NordBit OÜ for tax deductibility + VAT reclaim)
