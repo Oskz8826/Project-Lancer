@@ -14,12 +14,14 @@ Active tasks and up-next items. Blocked/deferred work lives in BACKLOG.md.
 
 ### Next session — start here
 
+**Auth split RESOLVED 2026-05-08** — committed to a NordBit ID account system at `id.nordbit.ee` (Astro + PocketBase native auth + apex cookie session sharing across `*.nordbit.ee`). 10-decision gating set locked, 8-phase build sequenced. **Master plan:** `~/.claude/plans/bubbly-gliding-planet.md`. **Schema split design:** `docs/schema-split.md` (this repo). Phase 1 (NordBit token gap-fill + schema split design) and Phase 2 (account app scaffold at `D:/0. Claude Projects/5. NordBitID/`) shipped 2026-05-08. Phase 6 of that plan is Lancer's M1 + brand pivot — absorbs the queued M1 work below into a shared NordBit token system.
+
 **M0 complete.** ✓ Branch cut, tagged, backup, plan amended.
 
 **Two threads to pick from:**
 
-1. **Continue rebuild — M1 Token foundation.** Replace `app/globals.css` `:root` with the full design-ref token set (8 colors + spacing 1–20 + radii xs–pill + shadow recipes). Map to Tailwind v4 `@theme inline`. Load Instrument Sans + JetBrains Mono via `next/font/google`. Mechanical sweep of hardcoded `#F25623` / `#0D0D12` / `#131318` literals → `var(--token)`. Read full M1 deliverables in plan file before starting.
-2. **Decide auth architecture split (raised 2026-05-02).** Current `users` mixes auth + Lancer-specific fields. See "Design decisions needed → Auth architecture split" below — three options A/B/C, lean is B.
+1. **Continue NordBit Account System — Phase 3 onboarding flows.** Six pixel-faithful screens against the V2 split layout from `C:/Users/oskzg/nordbit_handoff/design_handoff_account_system/`. Forces OAuth callback URL setup in Google + Discord consoles. Build lives at `D:/0. Claude Projects/5. NordBitID/`.
+2. **Continue Lancer rebuild — M1 / Phase 6.** Now folded into Phase 6 of the master plan — replaces `app/globals.css` `:root` with the SHARED NordBit token system (light + dark) instead of the original Lancer-specific token set. Chrome adopts `--accent` (NordBit blue); orange demoted to product-scoped surfaces. Read Phase 6 in the master plan for full deliverables. M1's original plan file at `~/.claude/plans/hey-cortana-joyful-token.md` remains valid for the mechanics; the master plan governs the brand direction.
 
 ### Branch protocol
 
@@ -44,11 +46,7 @@ These are gaps between the current build and what v10 specifies. Small, targeted
 
 - **History page** — placeholder at `/dashboard/history`. v10 §7 says: saved quotes + estimates, status tags, client filter, date filter, sort, expiring-quote highlight. Needs design sign-off before building.
 - **Quote status rename** — v10 changes status names entirely: `pending / accepted / declined / revised / superseded / expired` (currently `draft / ready / sent / accepted / rejected / completed`). This touches the DB schema, QuoteOverview, quotes page, and history. Decide when to migrate.
-- **Auth architecture split (raised 2026-05-02)** — `pb_schema.json` `users` collection mixes auth primitives with 7 Lancer-specific fields (`role`, `primary_discipline`, `additional_skills`, `working_currency`, `tier`, `ai_addon`, `quotes_used_this_month`). `region`/`country` are gray-area. Three options:
-  - **A. Defer.** Keep `users` as-is. Migrate when product #2 actually needs shared auth. Zero work now, more pain later — but you'd know product #2's needs by then.
-  - **B. Split now, single PocketBase.** Restructure into `users` (NordBit-level auth) + new `lancer_profiles` (relation to `users.id`) inside same Zone.ee VPS PB. Future products add `*_profiles` collections.
-  - **C. Split now, separate auth service.** Stand up `auth.nordbit.ee` (PB or otherwise), Lancer reads via API/JWT. Heaviest lift, cleanest separation.
-  - **Lean:** B — Lancer is currently the only product needing user auth (NordBit site has none, RTS has no auth surface yet), but splitting *before* Stripe + paying users land costs less than after. A is defensible if M1+ ships first. Decision pending.
+- **Auth architecture split — RESOLVED 2026-05-08.** Committed to a separate NordBit ID surface at `id.nordbit.ee` (essentially Option C from the original A/B/C, with PocketBase native auth on the existing Zone.ee VPS — no new vendor, no new bill). Schema split design: `docs/schema-split.md`. Master plan: `~/.claude/plans/bubbly-gliding-planet.md` (10 gating decisions locked, 8 phases). Cutover holds until `frontend-rebuild` merges per Q8.
 
 ---
 
