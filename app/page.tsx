@@ -364,7 +364,7 @@ export default function LandingPage() {
       }}>
         <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Lancer</span>
         <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.25)' }}>
-          © {new Date().getFullYear()} Lancer OÜ. All rights reserved.
+          © {new Date().getFullYear()} NordBit OÜ. All rights reserved.
         </span>
         <div style={{ display: 'flex', gap: '1.2rem' }}>
           {['Privacy', 'Terms'].map(l => (

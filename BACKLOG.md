@@ -6,9 +6,10 @@ Items approved in concept but deferred. Organized by release milestone.
 
 ## Deferred — External Dependencies
 
-- **Stripe integration** — subscription billing. Blocked on Lancer OÜ registration.
-- **Resend.com email integration** — transactional email. Blocked on registration.
+- **Stripe integration** — subscription billing. Blocked on NordBit OÜ registration.
+- **Resend.com email integration** — transactional email. Blocked on NordBit OÜ registration.
 - **ANTHROPIC_API_KEY** — AI assist is fully built, just needs the key. Deferred until API billing set up.
+- **Hosting account ownership transfer** — Cloudflare + Zone.ee accounts currently under Oskar personal. Move to NordBit OÜ ownership once company is registered (tax deductibility + VAT reclaim).
 
 ---
 
